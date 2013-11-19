@@ -1,0 +1,43 @@
+import(rgl)
+import(akima)
+import(pracma)
+import(Rssa)
+import(geometry)
+import(lattice)
+import(latticeExtra)
+import(tripack)
+import(stringr)
+
+
+export(BioSSA,
+       reconstruct,
+       embryo2d,
+       embryo3d,
+       read.pce.gene,
+       read.emb.data,
+       noise.model,
+       read.pce,
+       extract.gene.pce
+       )
+
+S3method("BioSSA", "embryo2d")
+S3method("BioSSA", "embryo3d")
+S3method("BioSSA", "formula")
+S3method("reconstruct", "BioSSA2d")
+S3method("reconstruct", "BioSSA3d")
+S3method("decompose", "BioSSA2d")
+S3method("decompose", "BioSSA3d")
+S3method("embryo2d", "formula")
+S3method("embryo3d", "formula")
+S3method("plot", "BioSSA2d")
+S3method("plot", "BioSSA2d.reconstruction")
+S3method("plot", "embryo2d")
+S3method("plot", "embryo3d")
+S3method("plot", "noise.model")
+S3method("print", "noise.model")
+S3method("summary", "noise.model")
+S3method("noise.model", "default")
+S3method("noise.model", "BioSSA2d")
+S3method("residuals", "BioSSA2d")
+S3method("residuals", "BioSSA2d.reconstruction")
+S3method("wcor", "BioSSA2d")
