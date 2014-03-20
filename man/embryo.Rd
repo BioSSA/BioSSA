@@ -36,7 +36,7 @@
 
   `embrio2d' is list with following fields: two coordinates 'x2d', 'y2d' and gene activity 'value'.
   List has 'topology' attribute, which stores \code{topology}.
-  If object returned from \сode{reconstruct} or \code{residuals} methods of `BioSSA2d' class,
+  If object returned from \code{reconstruct} or \code{residuals} methods of `BioSSA2d' class,
   it also contains field 'field', which stores interpolated values and interpolation grid parameters.
 
   `embrio3d' is list with following fields: three coordinates 'x3d', 'y3d', 'z3d' and gene activity 'value'.
