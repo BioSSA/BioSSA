@@ -119,9 +119,9 @@
   'sliding-window' means sliding window averaging (default approach)
   with window length denoted by \code{window} argument,
   'equal-break' and 'quantile-break' mean splitting all trend values
-  into buckets ('quantile-break' means buckets with equal quantity of elements in each bucket and
-  'equal-break' means equal size buckets), correspondingly residuals splitting and averaging
-  logarithmed residuals and trend values in each bucket.
+  into bins ('quantile-break' means bins with equal quantity of elements in each bin and
+  'equal-break' means equal size bins), correspondingly residuals splitting and averaging
+  logarithmed residuals and trend values in each bin.
 
   Then linear regression on averaged logarithms is provided. Slope is \eqn{\alpha}{alpha} esimation
   and intercept is estimation of logarithm of the standard deviation of relative noise, i.e.
