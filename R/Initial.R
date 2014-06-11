@@ -1,4 +1,20 @@
 interpolate <- function(x, step) {
+  if (any(is.na(x$values))) {
+    mask <- !is.na(x$values)
+    xup <- xdown <- x
+    M <- 10 * sum(abs(x$values[mask]))
+    xup$values[!mask] <- M
+    xdown$values[!mask] <- -M
+    iup <- interpolate(xup, step)
+    idown <- interpolate(xdown, step)
+
+    rmask <- iup$field$z == idown$field$z
+    x$field <- iup$field
+    x$field$z[!rmask] <- NA
+
+    return(invisible(x))
+  }
+
   # data == data.frame(x, y) + topology attr
 
   # TODO Add `units`
