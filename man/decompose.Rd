@@ -2,7 +2,7 @@
 \alias{decompose}
 \alias{decompose.BioSSA2d}
 \alias{decompose.BioSSA3d}
-\title{Performs the SSA decomposition of stored `2d.ssa. object(s)}
+\title{Performs the SSA decomposition of stored `2d.ssa' object(s)}
 
 \description{
   Perform the SSA decomposition of stored `2d.ssa' object(s).
