@@ -7,8 +7,8 @@
 \description{
   Creates a new object of class `embrio2d' or `embrio3d' correspondingly,
   input and output data for \code{BioSSA} procedure.
-
-  ASH: Probably, we should join these methods into one and determine dimension by formula length.
+  %
+  %EODUS: Probably, we should join these methods into one and determine dimension by formula length.
 }
 
 \usage{
