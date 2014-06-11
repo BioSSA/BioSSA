@@ -5,7 +5,7 @@
 \title{Read gene data from PCE file}
 
 \description{
-  Read gene expression data from PointCloud File Format
+  Read gene expression data from PointCloud File
 }
 
 \usage{
@@ -15,20 +15,20 @@ extract.gene.pce(pce, gene, measurement = c("default", "apical", "basal", "nucle
 }
 
 \arguments{
-  \item{file}{charater, PCE file name}
+  \item{file}{character, PCE file name}
   \item{gene}{character, gene name for extraction}
   \item{\dots}{further arguments passed to \code{extract.gene.pce} (e.g. \code{measurement})}
   \item{measurement}{measurement kind}
-  \item{pce}{data frame, parsed PCE content}
+  \item{pce}{parsed PCE content returned by \code{read.pce}}
 }
 
 \details{
-  Some details?..
+  \code{read.pce.gene} is combination of \code{read.pce} and \code{extract.gene.pce}.
 }
 
 \value{
   Object of class `embryo3d' for \code{read.pce.gene} and \code{extract.gene.pce}.
-  Data frame for \code{read.pce}.
+  Data frame with additional attributes for \code{read.pce}.
 }
 
 \seealso{
@@ -37,7 +37,7 @@ extract.gene.pce(pce, gene, measurement = c("default", "apical", "basal", "nucle
 }
 
 \references{
-  Format description: \url{http://bdtnp.lbl.gov/Fly-Net/bioimaging.jsp?w=pceFormat}
+  PCE format description: \url{http://bdtnp.lbl.gov/Fly-Net/bioimaging.jsp?w=pceFormat}
 }
 
 \examples{

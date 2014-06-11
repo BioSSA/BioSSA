@@ -296,18 +296,13 @@ embryo3d.formula <- function(x,
   emb3
 }
 
-residuals.BioSSA2d.reconstruction <- function(object, ...) {
-  attr(object, "residuals")
-}
+residuals.BioSSA2d.reconstruction <- function(object,
+                                              model = "additive", offset = 0,
+                                              ...) {
+  rec <- object # Fuck the system!!!
 
-residuals.BioSSA2d <- function(object, groups, ...,
-                               model = "additive", offset = 0) {
-  x <- object # Fuck the system!!!
-
-  groups <- list(trend = if (missing(groups)) seq_len(min(nsigma(x$ssa), nu(x$ssa))) else unlist(groups))
-
-  rec <- reconstruct(x, groups = groups, ...)
-  res <- residuals(rec)
+  res <- attr(object, "residuals")
+  series <- attr(rec, "series")
 
   if (is.character(model)) {
     model <- match.arg(model, c("additive", "multiplicative", "poisson"))
@@ -320,10 +315,22 @@ residuals.BioSSA2d <- function(object, groups, ...,
     alpha <- model
   }
 
-  res$values <- res$values / (rec$trend$values + offset) ^ alpha
+  res$values <- res$values / (series$values - res$values + offset) ^ alpha
 
   res
 }
+
+residuals.BioSSA3d.reconstruction <- residuals.BioSSA2d.reconstruction
+
+residuals.BioSSA2d <- function(object, groups,
+                               model = "additive", offset = 0,
+                               ...) {
+
+  rec <- reconstruct(object, groups = groups, ...)
+  residuals(rec, model = model, offset = offset)
+}
+
+residuals.BioSSA3d <- residuals.BioSSA2d
 
 wcor.BioSSA2d <- function(x, ...) {
   wcor(x$ssa, ...)
