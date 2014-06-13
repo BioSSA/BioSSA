@@ -134,7 +134,12 @@ plot.BioSSA2d <- function(x, type = c("ssa-values", "ssa-vectors", "ssa-series",
   }
 }
 
-.plot2d.embryo2d.field <- function(x, ..., col = grey(0:1)) {
+.plot2d.embryo2d.field <- function(x, ...,
+                                   col = grey(0:1),
+                                   cuts = 20,
+                                   zlim,
+                                   at,
+                                   useRaster = TRUE) {
   dots <- list(...)
 
   dots <- .defaults(dots,
@@ -146,7 +151,23 @@ plot.BioSSA2d <- function(x, type = c("ssa-values", "ssa-vectors", "ssa-series",
   data <- expand.grid(x = x$field$x, y = x$field$y)
   data$z <- as.vector(as.numeric(t(x$field$z)))
 
-  do.call("levelplot", c(list(z ~ x * y, data = data), dots))
+  if (missing(zlim)) {
+    zlim <- data$z
+  }
+
+  if (missing(at)) {
+    at <- pretty(zlim, n = cuts)
+  }
+
+  # Cutoff outstanding values
+  data$z[data$z < min(at)] <- min(at)
+  data$z[data$z > max(at)] <- max(at)
+
+  do.call("levelplot", c(list(z ~ x * y,
+                              data = data,
+                              at = at,
+                              useRaster = useRaster),
+                         dots))
 }
 
 .plot3d.embryo2d.field <- function(x, ..., add = FALSE) {
