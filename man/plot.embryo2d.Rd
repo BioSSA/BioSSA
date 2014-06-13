@@ -41,7 +41,7 @@
     \item{field-3d}{is 3d rgl plot, nuclei are depicted by colored spheres,
       color intensity corresponds to nuclei intensity value. Additional argument \code{col} ---
       character vector of two values, denotes colors for the lowest and the highest intensities correspondingly}
-    \item{nuclei-3d}{3d rgl surface plot, values in regular grid are depicted,
+    \item{nuclei-3d}{is 3d rgl surface plot, values in regular grid are depicted,
       color intensity corresponds to nuclei intensity value. Additional argument \code{col} --- see previous item}
   }
 
