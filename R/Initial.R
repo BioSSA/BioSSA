@@ -73,7 +73,11 @@ rotate.ellipsoid <- function(X) {
   # TODO We should use svd() here
   U <- eigen(crossprod(X), symmetric = TRUE)$vectors
 
-  # TODO Identify head and tail, up and down (m.b. copypaste?)
+  U[, 2:3] <- cbind(c(0, 1, 0), c(0, 0, 1))
+  U <- qr.Q(qr(U))
+
+  if (U[1, 1] < 0) U[, 1] <- -U[, 1]
+  if (U[3, 3] > 0) U[, 3] <- -U[, 3]
   if (det(U) < 0) U[, 2] <- -U[, 2]
 
   invisible(X %*% U)
