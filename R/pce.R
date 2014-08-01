@@ -2,13 +2,17 @@ unquote <- function(x) {
   gsub("\"(.*?)\"", "\\1", x)
 }
 
-parse.matlab.matrix <- function(s) {
+parse.matlab.matrix <- function(s, numeric = FALSE) {
   s <- gsub("\\[(.*?)\\]", "\\1", s, perl = TRUE)
   rows <- strsplit(s, "\\s*;\\s*", perl = TRUE)[[1]]
   mx <- strsplit(rows, "\\s*,\\s*", perl = TRUE)
 
   for (row in seq_along(mx)) {
     mx[[row]] <- unquote(mx[[row]])
+  }
+
+  if (numeric) {
+    mx <- do.call(rbind, lapply(mx, as.numeric))
   }
 
   mx
@@ -143,7 +147,15 @@ extract.gene.pce <- function(pce, gene,
     measurement <- default.measurement
   intensity.col <- if (measurement == "") dye else paste(dye, measurement, sep = "_")
   intensity.col <- gsub(" ", ".", intensity.col, fixed = TRUE)
+
   pce <- pce[, c("x", "y", "z", intensity.col)]
+  rotate2 <- parse.matlab.matrix(info$header$rotate2, numeric = TRUE)
+  XYZ <- as.matrix(pce[, c("x", "y", "z")])
+  XYZ <- XYZ %*% t(rotate2[1:3, 1:3])
+  pce$x <- XYZ[, 1]
+  pce$y <- XYZ[, 2]
+  pce$z <- XYZ[, 3]
+
   names(pce) <- c("x3d", "y3d", "z3d", "values")
 
   # TODO Decide what to do with addittional info. Drop it or document it?

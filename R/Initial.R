@@ -77,8 +77,8 @@ rotate.ellipsoid <- function(X) {
   U <- qr.Q(qr(U))
 
   if (U[1, 1] < 0) U[, 1] <- -U[, 1]
-  if (U[3, 3] > 0) U[, 3] <- -U[, 3]
-  if (det(U) < 0) U[, 2] <- -U[, 2]
+  if (U[2, 2] > 0) U[, 2] <- -U[, 2]
+  if (det(U) < 0) U[, 3] <- -U[, 3]
 
   invisible(X %*% U)
 }
@@ -87,7 +87,7 @@ sweep.cylinder <- function(X) {
   X <- rotate.ellipsoid(X)
   r <- sqrt(max(X[, 2]^2 + X[, 3]^2))
 
-  out <- cbind(X[, 1], r * atan2(X[, 3], X[, 2]))
+  out <- cbind(X[, 1], r * atan2(X[, 2], X[, 3]))
   attr(out, "r") <- r
   attr(out, "xlim") <- range(X[, 1])
 
