@@ -21,12 +21,12 @@
                     zlab = "z")
   dots$col <- .get.colors(data$values, col = dots$col)
 
-  do.call("plot3d", c(list(data$x, data$y, data$z), dots))
+  do.call("plot3d", c(list(data$x3d, data$y3d, data$z3d), dots))
 }
 
 .plot.embryo3d.hull <- function(data, ...) {
-  ch <- convhulln(cbind(data$x, data$y, data$z), options = "")
-  X <- cbind(data$x, data$y, data$z)
+  ch <- convhulln(cbind(data$x3d, data$y3d, data$z3d), options = "")
+  X <- cbind(data$x3d, data$y3d, data$z3d)
   mesh <- tmesh3d(t(cbind(X, 0.5)), t(ch))
 
   dots <- list(...)
@@ -38,7 +38,7 @@
                     zlab = "z")
   dots$col <- .get.colors(data$values, t(ch), col = dots$col)
 
-  plot3d(data$x, data$y, data$z, type = "n",
+  plot3d(data$x3d, data$y3d, data$z3d, type = "n",
          aspect = dots$aspect,
          xlab = dots$xlab,
          ylab = dots$ylab,
