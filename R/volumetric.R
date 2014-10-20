@@ -10,7 +10,7 @@
                inner = cbind(X[, 1], X[, 2] / R^2, X[, 3] / R^2))
   Xi.with.borders <- rbind(Xi, c(min(X[, 1]), 0, 0), c(max(X[, 1]), 0, 0))
 
-  hull <- convhulln(Xi.with.borders)
+  hull <- convhulln(Xi.with.borders, options = "Pp")
 
   idx.with.borders <- unique(as.vector(hull))
   idx <- setdiff(idx.with.borders,
@@ -45,7 +45,7 @@
                inner = X / R^2)
   Xi.with.borders <- rbind(Xi, c(0, 0, 0))
 
-  hull <- convhulln(Xi.with.borders)
+  hull <- convhulln(Xi.with.borders, options = "Pp")
 
   idx.with.borders <- unique(as.vector(hull))
   idx <- setdiff(idx.with.borders, nrow(Xi.with.borders))
