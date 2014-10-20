@@ -1,3 +1,30 @@
+interp.with.NAs <- function(x, y, z, ..., na.process = c("NA", "omit")) {
+  mask <- is.na(z)
+  if (!any(mask)) return(interp(x, y, z, ...))
+
+  na.process <- match.arg(na.process)
+
+  if (identical(na.process, "NA")) {
+    M <- 10 * sum(abs(z[!mask]))
+    zup <- zdown <- z
+    zup[mask] <- M
+    zdown[mask] <- -M
+    iup <- interp(x, y, zup, ...)
+    idown <- interp(x, y, zdown, ...)
+
+    rmask <- iup$z != idown$z
+    iup$z[rmask] <- NA
+
+    return(iup)
+  } else if(identical(na.process, "omit")) {
+    x <- x[!mask]
+    y <- y[!mask]
+    z <- z[!mask]
+
+    return(interp(x, y, z, ...))
+  }
+}
+
 interpolate <- function(x, step) {
   if (any(is.na(x$values))) {
     mask <- !is.na(x$values)
