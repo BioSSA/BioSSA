@@ -126,7 +126,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   f <- linear.interpolate(grid, rbind(uX, uX.down, uX.up), rep(v, 3))
 
   dim(f) <- sapply(list(ox, oy, oz), length)
-  field <- list(x = ox, y = oy, oz = oz, f = f)
+  field <- list(x = ox, y = oy, z = oz, f = f)
 
   x$field <- field
 
@@ -202,7 +202,7 @@ update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...) {
 }
 
 approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
-  z <- c(z - 2*pi, z, 2*pi)
+  z <- c(z - 2*pi, z, z + 2*pi)
   f <- rep(f, 3); dim(f) <- sapply(list(x, y, z), length)
 
   zout <- zout - 2*pi * floor(zout / (2*pi))
@@ -210,7 +210,7 @@ approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
   approx3d(x, y, z, f, xout, yout, zout)
 }
 
-update.field.embryo3d.cylynder <- function(x, newvalues = x$field$f, ...) {
+update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
