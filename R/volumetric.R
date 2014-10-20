@@ -8,12 +8,13 @@
   Xi <- switch(side,
                outer = X,
                inner = cbind(X[, 1], X[, 2] / R^2, X[, 3] / R^2))
-  Xi.with.borders <- rbind(c(min(X[, 1]), 0, 0), c(max(X[, 1]), 0, 0), Xi)
+  Xi.with.borders <- rbind(Xi, c(min(X[, 1]), 0, 0), c(max(X[, 1]), 0, 0))
 
   hull <- convhulln(Xi.with.borders)
 
   idx.with.borders <- unique(as.vector(hull))
-  idx <- setdiff(idx.with.borders, c(1, 2))
+  idx <- setdiff(idx.with.borders,
+                 c(nrow(Xi.with.borders), nrow(Xi.with.borders) - 1))
   print(length(idx))
 
   # TODO use proper interpolation using hull-induced tesselation instead of naive one
@@ -43,12 +44,12 @@
   Xi <- switch(side,
                outer = X,
                inner = X / R^2)
-  Xi.with.borders <- rbind(c(0, 0, 0), Xi)
+  Xi.with.borders <- rbind(Xi, c(0, 0, 0))
 
   hull <- convhulln(Xi.with.borders)
 
   idx.with.borders <- unique(as.vector(hull))
-  idx <- setdiff(idx.with.borders, c(1))
+  idx <- setdiff(idx.with.borders, nrow(Xi.with.borders))
 
   # TODO use proper interpolation using hull-induced tesselation instead of naive one
   x.base <- x[idx]
