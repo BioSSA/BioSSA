@@ -147,9 +147,9 @@ interpolate2grid.embryo3d.sphere <- function(x, ...,
   v <- v[mask]
 
   eps <- 1e-5
-  ox <- seq(min(uX[, 1]) + eps, max(uX[, 1]) - eps, length.out = cuts[1])
-  oy <- seq(min(uX[, 2]) + eps, max(uX[, 2]) - eps, length.out = cuts[2])
-  oz <- seq(min(uX[, 3]) + eps, max(uX[, 3]) - eps, length.out = cuts[3])
+  ox <- seq(min(uX[, 1]) + eps, max(uX[, 1]) - eps, length.out = cuts["x"])
+  oy <- seq(min(uX[, 2]) + eps, max(uX[, 2]) - eps, length.out = cuts["y"])
+  oz <- seq(min(uX[, 3]) + eps, max(uX[, 3]) - eps, length.out = cuts["depth"])
 
   grid <- as.matrix(expand.grid(x = ox, y = oy, z = oz))
 
