@@ -11,6 +11,10 @@
 }
 
 .plot.embryo3d.nuclei <- function(data, ...) {
+  data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
+  mask <- !is.na(data$values)
+  data <- data[mask, ]
+
   dots <- list(...)
   dots <- .defaults(dots,
                     aspect = FALSE,
@@ -25,6 +29,10 @@
 }
 
 .plot.embryo3d.hull <- function(data, ...) {
+  data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
+  mask <- !is.na(data$values)
+  data <- data[mask, ]
+
   ch <- convhulln(cbind(data$x3d, data$y3d, data$z3d), options = "")
   X <- cbind(data$x3d, data$y3d, data$z3d)
   mesh <- tmesh3d(t(cbind(X, 0.5)), t(ch))
