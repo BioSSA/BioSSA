@@ -333,7 +333,13 @@ reconstruct.BioSSAv <- function(x, groups, ...) {
                   update.field(x$emb3, newvalues = component)
                 })
   attr(res, "series") <- x$emb3
-  attr(res, "residuals") <- update.field(x$emb3, attr(rec, "residuals"))
+
+  residuals <- update.field(x$emb3, attr(rec, "residuals"))
+  residuals$values <- x$emb3$values
+  for (j in seq_along(res)) {
+    residuals$values <- residuals$values - res[[j]]$values
+  }
+  attr(res, "residuals") <- residuals
 
   names(res) <- names(rec)
   attr(res, "rec") <- rec

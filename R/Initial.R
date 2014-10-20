@@ -256,7 +256,13 @@ reconstruct.BioSSA2d <- function(x, groups, ...) {
                   deinterpolate(x$emb2, component)
                 })
   attr(res, "series") <- x$emb2
-  attr(res, "residuals") <- deinterpolate(x$emb2, attr(rec, "residuals"))
+
+  residuals <- deinterpolate(x$emb2, attr(rec, "residuals"))
+  residuals$values <- x$emb2$values
+  for (j in seq_along(res)) {
+    residuals$values <- residuals$values - res[[j]]$values
+  }
+  attr(res, "residuals") <- residuals
 
   names(res) <- names(rec)
   attr(res, "rec") <- rec
