@@ -11,6 +11,7 @@ import(oce)
 
 
 export(BioSSA,
+       BioSSAv,
        reconstruct,
        embryo2d,
        embryo3d,
@@ -44,3 +45,12 @@ S3method("residuals", "BioSSA3d")
 S3method("residuals", "BioSSA2d.reconstruction")
 S3method("residuals", "BioSSA3d.reconstruction")
 S3method("wcor", "BioSSA2d")
+
+S3method("BioSSAv", "formula")
+S3method("BioSSAv", "embryo3d")
+S3method("residuals", "BioSSAv")
+S3method("residuals", "BioSSAv.reconstruction")
+S3method("reconstruct", "BioSSAv")
+S3method("plot", "BioSSAv")
+S3method("decompose", "BioSSAv")
+S3method("noise.model", "BioSSAv")

@@ -144,6 +144,9 @@ noise.model.BioSSA3d <- function(x, ...) {
   noise.model(x$bssa2d, ...)
 }
 
+noise.model.BioSSAv <- noise.model.BioSSA2d
+noise.model.BioSSAv.reconstruction <- noise.model.BioSSA2d.reconstruction
+
 print.noise.model <- function(x, digits = max(3, getOption("digits") - 3), ...) {
   cat("Noise model:\n")
   cat("\tMultiplicity:", format(x$alpha, digits = digits), "\n")
