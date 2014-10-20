@@ -301,7 +301,7 @@ BioSSAv.formula <- function(x, data = NULL, ...,
   BioSSAv(emb3, ...)
 }
 
-BioSSAv.embryo3d <- function(x, ...) {
+BioSSAv.embryo3d <- function(x, L, ...) {
   stopifnot(.is.interpolated(x))
   f <- x$field$f
 
@@ -311,7 +311,7 @@ BioSSAv.embryo3d <- function(x, ...) {
     circular <- c(FALSE, FALSE, TRUE)
   }
 
-  dec <- ssa(f, ..., kind = "nd-ssa", circular = circular)
+  dec <- ssa(f, L = L, ..., kind = "nd-ssa", circular = circular)
 
   res <- list(emb3 = x,
               ssa = dec)
