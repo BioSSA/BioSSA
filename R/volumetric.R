@@ -286,7 +286,9 @@ BioSSAv <- function(x, ...) {
 interpolate2grid <- function(x, ...)
   UseMethod("interpolate2grid")
 
-BioSSAv.formula <- function(x, data = NULL, ..., kind = c("sphere", "cylinder")) {
+BioSSAv.formula <- function(x, data = NULL, ...,
+                            cuts = c(x = 100, y = 100, phi = 100, depth = 10),
+                            kind = c("sphere", "cylinder")) {
   kind <- match.arg(kind)
 
   emb3 <- embryo3d(x, data = data)
@@ -294,7 +296,7 @@ BioSSAv.formula <- function(x, data = NULL, ..., kind = c("sphere", "cylinder"))
                  sphere = unfold.embryo3d.sphere(emb3),
                  cylinder = unfold.embryo3d.cylynder(emb3))
 
-  emb3 <- interpolate2grid(emb3)
+  emb3 <- interpolate2grid(emb3, cuts = cuts)
 
   BioSSAv(emb3, ...)
 }
