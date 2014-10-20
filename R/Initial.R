@@ -26,22 +26,6 @@ interp.with.NAs <- function(x, y, z, ..., na.process = c("NA", "omit")) {
 }
 
 interpolate <- function(x, step) {
-  if (any(is.na(x$values))) {
-    mask <- !is.na(x$values)
-    xup <- xdown <- x
-    M <- 10 * sum(abs(x$values[mask]))
-    xup$values[!mask] <- M
-    xdown$values[!mask] <- -M
-    iup <- interpolate(xup, step)
-    idown <- interpolate(xdown, step)
-
-    rmask <- iup$field$z == idown$field$z
-    x$field <- iup$field
-    x$field$z[!rmask] <- NA
-
-    return(invisible(x))
-  }
-
   # data == data.frame(x, y) + topology attr
 
   # TODO Add `units`
@@ -76,9 +60,9 @@ interpolate <- function(x, step) {
     }
   }
 
-  grid <- interp(X[, 2], X[, 1], X[, 3],
-                 xo = rev(meshes[[2]]),
-                 yo = meshes[[1]])
+  grid <- interp.with.NAs(X[, 2], X[, 1], X[, 3],
+                          xo = rev(meshes[[2]]),
+                          yo = meshes[[1]])
   grid[c("x", "y")] <- grid[c("y", "x")]
 
   attr(grid, "circular") <- rev(is.finite(topology))
