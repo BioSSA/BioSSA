@@ -5,7 +5,7 @@ Version: 0.1
 Date: 2014-03-18
 Depends: R (>= 3.0), Rssa (>= 0.10-1), lattice, latticeExtra, rgl
 Imports: stringr, akima, pracma, geometry, tripack, oce
-Suggests: rPython
+Suggests: rPython, testthat
 Author: Alex Shlemov, Nina Golyandina
 Maintainer: Alex Shlemov <shlemovalex@gmail.com>
 Description: This package provides routines for gene expression SSA analysis.
