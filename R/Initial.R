@@ -49,6 +49,7 @@ interpolate <- function(x, step) {
                          length.out = count)
 
       # Recycle
+      # TODO Move it to interpolation procedure
       X.up <- X.down <- X
       X.up[, i] <- X.up[, i] + topology[i]
       X.down[, i] <- X.down[, i] - topology[i]
