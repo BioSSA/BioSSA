@@ -7,6 +7,7 @@ import(lattice)
 import(latticeExtra)
 import(tripack)
 import(stringr)
+import(oce)
 
 
 export(BioSSA,
