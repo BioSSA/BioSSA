@@ -80,10 +80,14 @@ deinterpolate <-  function(x, newdata) {
   x
 }
 
-rotate.ellipsoid <- function(X) {
-  X <- scale(X, center = TRUE, scale = FALSE)
-  # TODO We should use svd() here
-  U <- eigen(crossprod(X), symmetric = TRUE)$vectors
+find.center.cylinder <- function(X, ...) {
+  colMeans(X)
+}
+
+rotate.cylinder <- function(X, center = find.center.cylinder(X)) {
+  X <- scale(X, center = center, scale = FALSE)
+
+  U <- svd(X, nv = 3)$v
 
   U[, 2:3] <- cbind(c(0, 1, 0), c(0, 0, 1))
   U <- qr.Q(qr(U))
@@ -92,11 +96,11 @@ rotate.ellipsoid <- function(X) {
   if (U[2, 2] > 0) U[, 2] <- -U[, 2]
   if (det(U) < 0) U[, 3] <- -U[, 3]
 
-  invisible(X %*% U)
+  X %*% U
 }
 
 sweep.cylinder <- function(X) {
-  X <- rotate.ellipsoid(X)
+  X <- rotate.cylinder(X)
   r <- sqrt(max(X[, 2]^2 + X[, 3]^2))
 
   out <- cbind(X[, 1], r * atan2(X[, 2], X[, 3]))

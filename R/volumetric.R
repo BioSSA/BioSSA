@@ -65,7 +65,7 @@
 }
 
 .unfold3d.sphere <- function(X) {
-  # X <- rotate.sphere(X) should be done
+  # X <- rotate.sphere(X) must be done
 
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
   Rt <- 1 / sqrt(R^2 - X[, 1]^2 - X[, 2]^2)
@@ -83,7 +83,7 @@
 }
 
 .unfold3d.cylinder <- function(X) {
-  # X <- rotate.cylinder(X) should be done
+  # X <- rotate.cylinder(X) must be done
 
   R <- sqrt(X[, 2]^2 + X[, 3]^2)
   x <- X[, 1]
@@ -228,9 +228,37 @@ update.field.embryo3d.cylynder <- function(x, newvalues = x$field$f, ...) {
   x
 }
 
+
+find.center.sphere <- function(X, initial = rep(0, 3), ..., degree = 1) {
+  d2 <- function(center)
+    (X[, 1] - center[1])^2 + (X[, 2] - center[2])^2 + (X[, 3] - center[3])^2
+
+  optim(initial, function(center) sd(d2(center)^degree), ..., method = "BFGS")$par
+}
+
+rotate.sphere <- function(X, center = find.center.sphere(X)) {
+  X <- scale(X, center = center, scale = FALSE)
+  cX <- colMeans(X)
+  cX <- cX / sqrt(sum(cX^2))
+
+  M <- cbind(cX, c(1, 0, 0), c(0, 1, 0))
+  U <- qr.Q(qr(M))
+  U <- U[, c(2, 3, 1)]
+
+  if (U[2, 2] < 0)
+    U[, 2] <- -U[, 2]
+
+  if (det(U) < 0)
+    U[, 2] <- -U[, 2]
+
+  X %*% U
+}
+
 unfold.embryo3d.sphere <- function(x, ...) {
   X <- cbind(x$x3d, x$y3d, x$z3d)
-  # TODO rotate and center
+
+  X <- rotate.sphere(X)
+
   uX <- .unfold3d.sphere(X)
   x$x <- uX[, "x"]
   x$y <- uX[, "y"]
@@ -242,7 +270,9 @@ unfold.embryo3d.sphere <- function(x, ...) {
 
 unfold.embryo3d.cylynder <- function(x, ...) {
   X <- cbind(x$x3d, x$y3d, x$z3d)
-  # TODO rotate and center
+
+  X <- rotate.cylinder(X)
+
   uX <- .unfold3d.cylinder(X)
   x$x <- uX[, "x"]
   x$phi <- uX[, "phi"]
