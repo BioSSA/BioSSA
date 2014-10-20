@@ -279,14 +279,9 @@ unfold.embryo3d.cylynder <- function(x, ...) {
   x
 }
 
-
-
-
-
 BioSSAv <- function(x, ...) {
   UseMethod("BioSSAv")
 }
-
 
 interpolate2grid <- function(x, ...)
   UseMethod("interpolate2grid")
