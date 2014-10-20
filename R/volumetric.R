@@ -36,7 +36,7 @@
   side <- match.arg(side)
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
 
-  Rt <- 1 / sqrt(R^2 - X[, 1]^2 - X[, 2]^2)
+  Rt <- 1 / X[, 3] # MB use atan2(R, X[, 3]) / sqrt(X[, 1]^2 + sqrt(X[, 2]^2))
   x <- X[, 1] * Rt
   y <- X[, 2] * Rt
 
@@ -68,7 +68,7 @@
   # X <- rotate.sphere(X) must be done
 
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
-  Rt <- 1 / sqrt(R^2 - X[, 1]^2 - X[, 2]^2)
+  Rt <- 1 / X[, 3] # MB use atan2(R, X[, 3]) / sqrt(X[, 1]^2 + sqrt(X[, 2]^2))
   x <- X[, 1] * Rt
   y <- X[, 2] * Rt
 
