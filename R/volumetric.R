@@ -15,7 +15,6 @@
   idx.with.borders <- unique(as.vector(hull))
   idx <- setdiff(idx.with.borders,
                  c(nrow(Xi.with.borders), nrow(Xi.with.borders) - 1))
-  print(length(idx))
 
   # TODO use proper interpolation using hull-induced tesselation instead of naive one
   x.base <- c(min(x), max(x), x[idx])
@@ -110,8 +109,6 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   # Omit NAs FIXME
   mask <- !is.na(rowSums(uX))
 
-  print(sum(!mask))
-
   uX <- uX[mask,, drop = FALSE]
   v <- v[mask]
 
@@ -127,7 +124,6 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   uX.down[, "phi"] <- uX[, "phi"] - 2*pi
 
   f <- linear.interpolate(grid, rbind(uX, uX.down, uX.up), rep(v, 3))
-  print("Interpolation done")
 
   dim(f) <- sapply(list(ox, oy, oz), length)
   field <- list(x = ox, y = oy, oz = oz, f = f)
