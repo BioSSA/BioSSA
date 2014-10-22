@@ -114,10 +114,10 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
   eps <- 1e-5
   ox <- seq(min(uX[, "x"]) + eps, max(uX[, "x"]) - eps, length.out = cuts["x"])
-  oy <- seq(min(uX[, "depth"]) + eps, max(uX[, "depth"]) - eps, length.out = cuts["depth"])
-  oz <- seq(0, 2*pi, length.out = cuts["phi"] + 1); oz <- oz[-length(oz)]
+  odepth <- seq(min(uX[, "depth"]) + eps, max(uX[, "depth"]) - eps, length.out = cuts["depth"])
+  ophi <- seq(0, 2*pi, length.out = cuts["phi"] + 1); ophi <- ophi[-length(ophi)]
 
-  grid <- as.matrix(expand.grid(x = ox, y = oy, z = oz))
+  grid <- as.matrix(expand.grid(x = ox, depth = odepth, phi = ophi))
 
   uX.up <- uX.down <- uX
   uX.up[, "phi"] <- uX[, "phi"] + 2*pi
@@ -125,8 +125,8 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
   f <- linear.interpolate(grid, rbind(uX, uX.down, uX.up), rep(v, 3))
 
-  dim(f) <- sapply(list(ox, oy, oz), length)
-  field <- list(x = ox, y = oy, z = oz, f = f)
+  dim(f) <- sapply(list(ox, odepth, ophi), length)
+  field <- list(x = ox, depth = odepth, phi = ophi, f = f)
 
   x$field <- field
 
@@ -149,14 +149,14 @@ interpolate2grid.embryo3d.sphere <- function(x, ...,
   eps <- 1e-5
   ox <- seq(min(uX[, 1]) + eps, max(uX[, 1]) - eps, length.out = cuts["x"])
   oy <- seq(min(uX[, 2]) + eps, max(uX[, 2]) - eps, length.out = cuts["y"])
-  oz <- seq(min(uX[, 3]) + eps, max(uX[, 3]) - eps, length.out = cuts["depth"])
+  odepth <- seq(min(uX[, 3]) + eps, max(uX[, 3]) - eps, length.out = cuts["depth"])
 
-  grid <- as.matrix(expand.grid(x = ox, y = oy, z = oz))
+  grid <- as.matrix(expand.grid(x = ox, y = oy, depth = odepth))
 
   f <- linear.interpolate(grid, uX, v)
 
-  dim(f) <- sapply(list(ox, oy, oz), length)
-  field <- list(x = ox, y = oy, z = oz, f = f)
+  dim(f) <- sapply(list(ox, oy, odepth), length)
+  field <- list(x = ox, y = oy, depth = odepth, f = f)
 
   x$field <- field
 
@@ -193,10 +193,10 @@ update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...) {
   x$field$f[] <- as.numeric(newvalues)
   ox <- x$x; ox <- shrink(ox, x$field$x)
   oy <- x$y; oy <- shrink(oy, x$field$y)
-  oz <- x$depth; oz <- shrink(oz, x$field$z)
+  odepth <- x$depth; odepth <- shrink(odepth, x$field$depth)
 
-  x$values <- approx3d(x$field$x, x$field$y, x$field$z, x$field$f,
-                       ox, oy, oz)
+  x$values <- approx3d(x$field$x, x$field$y, x$field$depth, x$field$f,
+                       ox, oy, odepth)
 
   x
 }
@@ -216,11 +216,11 @@ update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...) {
   x$field$f[] <- as.numeric(newvalues)
 
   ox <- x$x; ox <- shrink(ox, x$field$x)
-  oy <- x$depth; oy <- shrink(oy, x$field$y)
-  oz <- x$phi; oz <- shrink(oz, x$field$z)
+  odepth <- x$depth; odepth <- shrink(odepth, x$field$depth)
+  ophi <- x$phi; ophi <- shrink(ophi, x$field$phi)
 
-  x$values <- approx3d.cycled(x$field$x, x$field$y, x$field$z, x$field$f,
-                              ox, oy, oz)
+  x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
+                              ox, odepth, ophi)
 
   x
 }
@@ -386,7 +386,7 @@ field.section.embryo3d <- function(emb3, slice = list(), units = c("percent", "o
   slice.idx <- c(slice.idx, tmp)
   stopifnot(length(slice.idx) == 3)
 
-  slice.idx <- slice.idx[order(names(slice.idx))]
+  slice.idx <- slice.idx[order(match(names(slice.idx), names(field)))] # KILLMEPLS
   names(slice.idx) <- NULL
 
   values <- do.call("[", c(list(field$f, drop = TRUE), slice.idx))
