@@ -178,9 +178,8 @@ update.field.embryo3d <- function(x, ...)
   stop("Abstract method")
 
 
-shrink <- function(what, to) {
+shrink <- function(what, to, eps = 1e-5) {
   to <- range(to)
-  eps <- 1e-5
   what[what <= to[1]] <- to[1] + eps
   what[what >= to[2]] <- to[2] - eps
 
