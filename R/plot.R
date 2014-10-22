@@ -54,13 +54,18 @@
   do.call("shade3d", c(list(mesh), dots))
 }
 
-plot.embryo3d <- function(x, type = c("hull", "nuclei"), ...) {
+plot.embryo3d <- function(x, type = c("hull", "nuclei",
+                                      "field-section", "nuclei-section"), ...) {
   type <- match.arg(type)
 
   if (identical(type, "hull")) {
     .plot.embryo3d.hull(x, ...)
   } else if (identical(type, "nuclei")) {
     .plot.embryo3d.nuclei(x, ...)
+  } else if (identical(type, "field-section")) {
+    .plot1d.embryo3d.section.field(x, ...)
+  } else if (identical(type, "nuclei-section")) {
+    .plot1d.embryo3d.section.nuclei(x, ...)
   } else {
     stop("Unknown `type'")
   }
