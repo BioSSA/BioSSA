@@ -278,14 +278,14 @@ unfold.embryo3d.cylynder <- function(x, ...) {
   x
 }
 
-BioSSAv <- function(x, ...) {
-  UseMethod("BioSSAv")
+BioSSA3d <- function(x, ...) {
+  UseMethod("BioSSA3d")
 }
 
 interpolate2grid <- function(x, ...)
   UseMethod("interpolate2grid")
 
-BioSSAv.formula <- function(x, data = NULL, ...,
+BioSSA3d.formula <- function(x, data = NULL, ...,
                             cuts = c(x = 100, y = 100, phi = 100, depth = 10),
                             kind = c("sphere", "cylinder")) {
   kind <- match.arg(kind)
@@ -297,10 +297,10 @@ BioSSAv.formula <- function(x, data = NULL, ...,
 
   emb3 <- interpolate2grid(emb3, cuts = cuts)
 
-  BioSSAv(emb3, ...)
+  BioSSA3d(emb3, ...)
 }
 
-BioSSAv.embryo3d <- function(x, L, ...) {
+BioSSA3d.embryo3d <- function(x, L, ...) {
   stopifnot(.is.interpolated(x))
   f <- x$field$f
 
@@ -314,18 +314,18 @@ BioSSAv.embryo3d <- function(x, L, ...) {
 
   res <- list(emb3 = x,
               ssa = dec)
-  class(res) <- "BioSSAv" # "v" for volumetric =)
+  class(res) <- "BioSSA3d"
 
   res
 }
 
-decompose.BioSSAv <- function(x, ...) {
+decompose.BioSSA3d <- function(x, ...) {
   x$ssa <- decompose(x$ssa, ...)
 
   x
 }
 
-reconstruct.BioSSAv <- function(x, groups, ...) {
+reconstruct.BioSSA3d <- function(x, groups, ...) {
   rec <- reconstruct(x$ssa, groups = groups, ...)
   res <- lapply(rec,
                 function(component) {
@@ -343,14 +343,12 @@ reconstruct.BioSSAv <- function(x, groups, ...) {
   names(res) <- names(rec)
   attr(res, "rec") <- rec
 
-  class(res) <- "BioSSAv.reconstruction"
+  class(res) <- "BioSSA3d.reconstruction"
   invisible(res)
 }
 
 
-residuals.BioSSAv <- residuals.BioSSA2d
-residuals.BioSSAv.reconstruction <- residuals.BioSSA2d.reconstruction
-plot.BioSSAv <- plot.BioSSA2d
+plot.BioSSA3d <- plot.BioSSA2d
 
 
 

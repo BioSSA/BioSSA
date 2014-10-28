@@ -140,12 +140,12 @@ noise.model.BioSSA2d <- function(x, groups, ...) {
   noise.model(rec, ...)
 }
 
-noise.model.BioSSA3d <- function(x, ...) {
+noise.model.BioSSA2d3d <- function(x, ...) {
   noise.model(x$bssa2d, ...)
 }
 
-noise.model.BioSSAv <- noise.model.BioSSA2d
-noise.model.BioSSAv.reconstruction <- noise.model.BioSSA2d.reconstruction
+noise.model.BioSSA3d <- noise.model.BioSSA2d
+noise.model.BioSSA3d.reconstruction <- noise.model.BioSSA2d.reconstruction
 
 print.noise.model <- function(x, digits = max(3, getOption("digits") - 3), ...) {
   cat("Noise model:\n")

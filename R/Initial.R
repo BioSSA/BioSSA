@@ -141,15 +141,26 @@ desweep <- function(emb3, emb2) {
 BioSSA <- function(x, ...)
   UseMethod("BioSSA")
 
-BioSSA.embryo2d <- function(x,
-                            ...,
-                            step = 0.5,
-                            L = c(50, 50),
-                            xlim = c(-Inf, Inf),
-                            ylim = c(-Inf, Inf),
-                            xperc = c(0, 100),
-                            yperc = c(0, 100),
-                            units = c("percent", "original")) {
+BioSSA2d3d <- function(x, ...)
+  UseMethod("BioSSA2d3d")
+
+BioSSA2.5d <- BioSSA2d3d
+
+BioSSA2d <- function(x, ...)
+  UseMethod("BioSSA2d")
+
+BioSSA3d <- function(x, ...)
+  UseMethod("BioSSA3d")
+
+BioSSA2d.embryo2d <- function(x,
+                              ...,
+                              step = 0.5,
+                              L = c(50, 50),
+                              xlim = c(-Inf, Inf),
+                              ylim = c(-Inf, Inf),
+                              xperc = c(0, 100),
+                              yperc = c(0, 100),
+                              units = c("percent", "original")) {
   emb2 <- x
   units <- match.arg(units)
 
@@ -212,7 +223,7 @@ BioSSA.embryo2d <- function(x,
   res
 }
 
-BioSSA.embryo3d <- function(x, ..., sweep = sweep.function) {
+BioSSA2d3d.embryo3d <- function(x, ..., sweep = sweep.function) {
   emb3 <- x
   emb2 <- sweep(emb3)
 
@@ -221,9 +232,12 @@ BioSSA.embryo3d <- function(x, ..., sweep = sweep.function) {
   res <- list(emb3 = emb3,
               bssa2d = bssa2d)
 
-  class(res) <- "BioSSA3d"
+  class(res) <- "BioSSA2d3d"
   res
 }
+
+BioSSA.embryo2d <- BioSSA2d.embryo2d
+BioSSA.embryo3d <- BioSSA2d3d.embryo3d
 
 decompose.BioSSA2d <- function(x, ...) {
   decompose(x$ssa, ...)
@@ -231,7 +245,7 @@ decompose.BioSSA2d <- function(x, ...) {
   x
 }
 
-decompose.BioSSA3d <- function(x, ...) {
+decompose.BioSSA2d3d <- function(x, ...) {
   decompose(x$bssa2d, ...)
 
   x
@@ -241,9 +255,9 @@ BioSSA.formula <- function(x, data = NULL, ...) {
   dim <- length(all.vars(x, unique = FALSE)) - 1
 
   if (dim == 2) {
-    BioSSA(embryo2d(x, data = data), ...)
+    BioSSA2d(embryo2d(x, data = data), ...)
   } else if (dim == 3) {
-    BioSSA(embryo3d(x, data = data), ...)
+    BioSSA2d3d(embryo3d(x, data = data), ...)
   } else {
     stop("Incorrect `formula' argument dimension")
   }
@@ -271,7 +285,7 @@ reconstruct.BioSSA2d <- function(x, groups, ...) {
   invisible(res)
 }
 
-reconstruct.BioSSA3d <- function(x, groups, ...) {
+reconstruct.BioSSA2d3d <- function(x, groups, ...) {
   rec <- reconstruct(x$bssa2d, groups = groups, ...)
   res <- lapply(rec,
                 function(component) {
@@ -283,7 +297,7 @@ reconstruct.BioSSA3d <- function(x, groups, ...) {
   names(res) <- names(rec)
   attr(res, "rec") <- rec
 
-  class(res) <- "BioSSA3d.reconstruction"
+  class(res) <- "BioSSA2d3d.reconstruction"
   invisible(res)
 }
 
@@ -346,7 +360,7 @@ residuals.BioSSA2d.reconstruction <- function(object,
   res
 }
 
-residuals.BioSSA3d.reconstruction <- residuals.BioSSA2d.reconstruction
+residuals.BioSSA2d3d.reconstruction <- residuals.BioSSA2d.reconstruction
 
 residuals.BioSSA2d <- function(object, groups,
                                model = "additive", offset = 0,
@@ -356,7 +370,7 @@ residuals.BioSSA2d <- function(object, groups,
   residuals(rec, model = model, offset = offset)
 }
 
-residuals.BioSSA3d <- residuals.BioSSA2d
+residuals.BioSSA2d3d <- residuals.BioSSA2d
 
 wcor.BioSSA2d <- function(x, ...) {
   wcor(x$ssa, ...)

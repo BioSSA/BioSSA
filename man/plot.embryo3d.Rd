@@ -7,7 +7,7 @@
 }
 
 \usage{
-\method{plot}{embryo3d}(x, type = c("hull", "nuclei"), \dots)
+\method{plot}{embryo3d}(x, type = c("hull", "nuclei", "field-section", "nuclei-section"), \dots)
 }
 
 \arguments{

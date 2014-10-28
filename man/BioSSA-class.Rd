@@ -2,6 +2,7 @@
 \alias{BioSSA-class}
 \alias{BioSSA2d-class}
 \alias{BioSSA3d-class}
+\alias{BioSSA2d3d-class}
 
 \title{S3 classes for BioSSA decompositions}
 
