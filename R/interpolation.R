@@ -17,6 +17,7 @@ linear.interpolate <- function(x, points, values) {
   values <- as.vector(values)
 
   if (length(values) < nrow(points)) {
+    # Recycling
     values <- values + numeric(nrow(points))
   }
   stopifnot(length(values) == nrow(points))
