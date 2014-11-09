@@ -186,6 +186,7 @@ residuals.BioSSA2d.reconstruction <- function(object,
 }
 
 residuals.BioSSA2d3d.reconstruction <- residuals.BioSSA2d.reconstruction
+residuals.BioSSA3d.reconstruction <- residuals.BioSSA2d.reconstruction
 
 residuals.BioSSA2d <- function(object, groups,
                                model = "additive", offset = 0,
@@ -196,6 +197,7 @@ residuals.BioSSA2d <- function(object, groups,
 }
 
 residuals.BioSSA2d3d <- residuals.BioSSA2d
+residuals.BioSSA3d <- residuals.BioSSA2d
 
 wcor.BioSSA2d <- function(x, ...) {
   wcor(x$ssa, ...)
