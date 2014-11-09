@@ -57,8 +57,123 @@
   do.call("shade3d", c(list(mesh), dots))
 }
 
+# TODO Merge with field.section.embryo3d
+field.section2d.embryo3d <- function(emb3, slice = list(), units = c("percent", "original")) {
+  stopifnot(.is.interpolated(emb3))
+
+  units <- match.arg(units)
+
+  field <- emb3$field
+
+  # TODO Do smth with it
+  # if (identical(units, "percent")) {
+  #   field$x <- (field$x - emb2$x0perc) / emb2$x1perc
+  #   field$y <- (field$y - emb2$y0perc) / emb2$y1perc
+  # }
+
+  # Determine free coords
+  # FIXME reorder if needed
+  free.coords <- setdiff(names(field), c("f", names(slice)))
+  free.coords <- free.coords[order(match(free.coords, names(field)))]
+
+  slice.idx <- lapply(names(slice),
+                      function(name) {
+                        s <- slice[[name]]
+                        coord <- field[[name]]
+                        name <- names(s)
+                        which.min(abs(coord - s))
+                      })
+  names(slice.idx) <- names(slice) # FIXME MB this is not needed
+  stopifnot(length(slice.idx) == 1)
+  tmp <- list(TRUE, TRUE)
+  names(tmp) <- free.coords
+  slice.idx <- c(slice.idx, tmp)
+  stopifnot(length(slice.idx) == 3)
+
+  slice.idx <- slice.idx[order(match(names(slice.idx), names(field)))] # KILLMEPLS
+  names(slice.idx) <- NULL
+
+  values <- do.call("[", c(list(field$f, drop = TRUE), slice.idx))
+  list(x = field[[free.coords[1]]],
+       y = field[[free.coords[2]]],
+       z = values, free.coords = free.coords)
+}
+
+.plot3d.embryo3d.section2d.field <- function(x, slice, ..., add = FALSE, col = grey(0:1),
+                                             grid = c("x", "y", "z")) {
+  x <- field.section2d.embryo3d(x, slice = slice)
+  dots <- list(...)
+
+  # Provide convenient defaults
+  dots <- .defaults(dots,
+                    xlab = x$free.coords[1],
+                    ylab = x$free.coords[2],
+                    zlab = "value",
+                    main = "")
+  if (!add) plot3d(range(x$x), range(x$y), range(x$z, na.rm = TRUE), type = "n",
+                   xlab = dots$xlab, ylab = dots$ylab, zlab = dots$zlab,
+                   main = dots$main)
+  do.call(surface3d,
+          c(list(x$x, x$y, x$z, col = .get.colors(t(x$z), col = col)), dots))
+
+  if (!add) {
+    if (!identical(grid, FALSE))
+      grid3d(grid)
+  }
+}
+
+.plot3d.embryo3d.section2d.nuclei <- function(x,
+                                              slice,
+                                              tolerance = 0.1,
+                                              units = c("percent", "original"),
+                                              ...,
+                                              ref = FALSE, add = FALSE,
+                                              grid = c("x", "y", "z")) {
+  dots <- list(...)
+  units <- match.arg(units)
+
+  stripe <- subset(x, subset = slice, tolerance = tolerance)
+  free.coords <- setdiff(names(x), c(names(slice), "field", "values", "x3d", "y3d", "z3d"))
+  free.coords <- free.coords[order(match(free.coords, names(x)))]
+  stripe$xvalues <- stripe[[free.coords[1]]]
+  stripe$yvalues <- stripe[[free.coords[2]]]
+
+  # Provide convenient defaults
+  dots <- .defaults(dots,
+                    type = "s",
+                    xlab = free.coords[1],
+                    ylab = free.coords[2],
+                    zlab = "values",
+                    main = "",
+                    size = 1,
+                    axes = TRUE,
+                    bbox = TRUE,
+                    col = grey(c(0, 1)))
+  plot3d(stripe$xvalues, stripe$yvalues, stripe$values,
+         type = dots$type,
+         main = dots$main,
+         size = dots$size,
+         axes = dots$axes,
+         xlab = dots$xlab, ylab = dots$ylab, zlab = dots$zlab,
+         col = .get.colors(stripe$values, col = dots$col),
+         add = add)
+
+  if (ref) {
+    surface3d(range(stripe$xvalues),
+              range(stripe$yvalues),
+              matrix(0, 2, 2), col = "green", alpha = 0.25)
+  }
+
+  if (!add) {
+    if (!identical(grid, FALSE))
+      grid3d(grid)
+  }
+}
+
 plot.embryo3d <- function(x, type = c("hull", "nuclei",
-                                      "field-section", "nuclei-section"), ...) {
+                                      "field-section", "nuclei-section",
+                                      "field-section3d", "nuclei-section3d"),
+                          ...) {
   type <- match.arg(type)
 
   if (identical(type, "hull")) {
@@ -69,6 +184,10 @@ plot.embryo3d <- function(x, type = c("hull", "nuclei",
     .plot1d.embryo3d.section.field(x, ...)
   } else if (identical(type, "nuclei-section")) {
     .plot1d.embryo3d.section.nuclei(x, ...)
+  } else if (identical(type, "nuclei-section3d")) {
+    .plot3d.embryo3d.section2d.nuclei(x, ...)
+  } else if (identical(type, "field-section3d")) {
+    .plot3d.embryo3d.section2d.field(x, ...)
   } else {
     stop("Unknown `type'")
   }
