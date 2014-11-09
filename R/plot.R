@@ -28,14 +28,17 @@
   do.call("plot3d", c(list(data$x3d, data$y3d, data$z3d), dots))
 }
 
-.plot.embryo3d.hull <- function(data, ...) {
+.plot.embryo3d.hull <- function(data, ..., alpha = Inf) {
   data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
   mask <- !is.na(data$values)
   data <- data[mask, ]
 
-  ch <- convhulln(cbind(data$x3d, data$y3d, data$z3d), options = "")
   X <- cbind(data$x3d, data$y3d, data$z3d)
-  mesh <- tmesh3d(t(cbind(X, 0.5)), t(ch))
+  ash <- ashape3d(X, alpha = alpha, pert = TRUE)
+  triang <- ash$triang
+  ach <- triang[triang[, 9] == 2, 1:3] # Extract regular triangles (0 --- not in, 1 --- interior, 2 --- regular, 3 --- singular)
+
+  mesh <- tmesh3d(t(cbind(X, 0.5)), t(ach))
 
   dots <- list(...)
   dots <- .defaults(dots,
@@ -44,7 +47,7 @@
                     xlab = "x",
                     ylab = "y",
                     zlab = "z")
-  dots$col <- .get.colors(data$values, t(ch), col = dots$col)
+  dots$col <- .get.colors(data$values, t(ach), col = dots$col)
 
   plot3d(data$x3d, data$y3d, data$z3d, type = "n",
          aspect = dots$aspect,
