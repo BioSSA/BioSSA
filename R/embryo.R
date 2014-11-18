@@ -184,7 +184,7 @@ desweep <- function(emb3, emb2) {
   side <- match.arg(side)
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
 
-  Rt <- 1 / X[, 3] # MB use atan2(R, X[, 3]) / sqrt(X[, 1]^2 + sqrt(X[, 2]^2))
+  Rt <- 1 / X[, 3]
   x <- X[, 1] * Rt
   y <- X[, 2] * Rt
 
@@ -216,9 +216,12 @@ desweep <- function(emb3, emb2) {
   # X <- rotate.sphere(X) must be done
 
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
-  Rt <- 1 / X[, 3] # MB use atan2(R, X[, 3]) / sqrt(X[, 1]^2 + sqrt(X[, 2]^2))
-  x <- X[, 1] * Rt
-  y <- X[, 2] * Rt
+  x <- X[, 1] / R
+  y <- X[, 2] / R
+  z <- X[, 3] / R
+
+  x <- x / (z + 1)
+  y <- y / (z + 1)
 
   R.inner <- .radius.sphere(X, side = "inner")
   R.outer <- .radius.sphere(X, side = "outer")
