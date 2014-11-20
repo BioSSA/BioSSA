@@ -41,9 +41,9 @@ noise.model.default <- function(x, trend,
   }
 
   stopifnot(all(abs(residuals) > 0))
-  stopifnot(all(trend + offset > 0))
+  stopifnot(all(abs(trend + offset) > 0))
   residuals <- log(abs(residuals))
-  trend <- log(trend + offset)
+  trend <- log(abs(trend + offset))
 
   averaging.type <- match.arg(averaging.type)
   if (identical(averaging.type, "none")) {
