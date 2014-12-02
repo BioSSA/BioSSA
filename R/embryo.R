@@ -5,7 +5,7 @@ embryo2d.formula <- function(x,
                              data = NULL,
                              topology = c(Inf, Inf),
                              ...) {
-  mf <- model.frame(x, data = data, ...)
+  mf <- model.frame(x, data = data, ..., na.action = NULL)
 
   emb2 <- list(x2d = mf[, 2],
                y2d = mf[, 3],
@@ -22,7 +22,7 @@ embryo3d <- function(x, ...)
 embryo3d.formula <- function(x,
                              data = NULL,
                              ...) {
-  mf <- model.frame(x, data = data, ...)
+  mf <- model.frame(x, data = data, ..., na.action = NULL)
 
   emb3 <- list(x3d = mf[, 2],
                y3d = mf[, 3],
