@@ -216,12 +216,6 @@ desweep <- function(emb3, emb2) {
   # X <- rotate.sphere(X) must be done
 
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
-  x <- X[, 1] / R
-  y <- X[, 2] / R
-  z <- X[, 3] / R
-
-  x <- x / (z + 1)
-  y <- y / (z + 1)
 
   R.inner <- .radius.sphere(X, side = "inner")
   R.outer <- .radius.sphere(X, side = "outer")
@@ -229,6 +223,29 @@ desweep <- function(emb3, emb2) {
   depth <- (R - R.inner) / (R.outer - R.inner)
   depth[depth > 1] <- 1
   depth[depth < 0] <- 0
+
+  x <- X[, 1] / R
+  y <- X[, 2] / R
+  z <- X[, 3] / R
+
+  R.median <- median(R)
+  dR.median <- median(R.outer - R.inner)
+  x.size <- diff(asin(range(x))) * R.median
+  y.size <- diff(asin(range(y))) * R.median
+
+  N <- nrow(X)
+  dx <- x.size; dy <- y.size; dd <- dR.median
+  vol <- volume_ashape3d(ashape3d(X, alpha = 250)) # TODO Use proper volume estimation
+  rvol <- dx * dy * dd
+  dense <- N / vol
+  xN <- dense^(1/3) * dx
+  yN <- dense^(1/3) * dy
+  dN <- dense^(1/3) * dd
+  print(sprintf("dx = %f, dy = %f, dd = %f, N = %d, dense = %f, dN = %f, vol = %f, rvol = %f, R = %f",
+                dx, dy, dd, N, dense, dN, vol, rvol, R.median))
+
+  x <- x / (z + 1)
+  y <- y / (z + 1)
 
   cbind(x = x, y = y, depth = depth) # All of them are normalized
 }
