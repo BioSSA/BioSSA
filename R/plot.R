@@ -10,7 +10,7 @@
   rgb(cl[, 1], cl[, 2], cl[, 3])
 }
 
-.plot.embryo3d.nuclei <- function(data, ...) {
+.plot.embryo3d.nuclei <- function(data, ..., plot.type = "s") {
   data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
   mask <- !is.na(data$values)
   data <- data[mask, ]
@@ -18,7 +18,7 @@
   dots <- list(...)
   dots <- .defaults(dots,
                     aspect = FALSE,
-                    type = "s",
+                    type = plot.type,
                     col = c("blue", "red"),
                     xlab = "x",
                     ylab = "y",
