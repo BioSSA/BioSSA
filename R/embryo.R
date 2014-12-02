@@ -310,7 +310,7 @@ desweep <- function(emb3, emb2) {
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
                                                cuts = c(x = 200, depth = 10, phi = 200),
-                                               na.omit = FALSE) {
+                                               na.omit = TRUE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, depth = x$depth, phi = x$phi)
@@ -350,7 +350,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
 interpolate2grid.embryo3d.sphere <- function(x, ...,
                                              cuts = c(x = 200, y = 200, depth = 10),
-                                             na.omit = FALSE) {
+                                             na.omit = TRUE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, y = x$y, depth = x$depth)
@@ -408,7 +408,7 @@ shrink <- function(what, to, eps = 1e-5) {
 }
 
 update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...,
-                                         impute.na = FALSE) {
+                                         impute.na = TRUE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
@@ -437,7 +437,7 @@ approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
 }
 
 update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
-                                           impute.na = FALSE) {
+                                           impute.na = TRUE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
