@@ -7,13 +7,14 @@ interpolate2grid <- function(x, ...)
 
 BioSSA3d.formula <- function(x, data = NULL, ...,
                             cuts = c(x = 100, y = 100, phi = 100, depth = 10),
-                            kind = c("sphere", "cylinder")) {
+                            kind = c("sphere", "cylinder", "sphere.cylinder")) {
   kind <- match.arg(kind)
 
   emb3 <- embryo3d(x, data = data)
   emb3 <- switch(kind,
                  sphere = unfold.embryo3d.sphere(emb3),
-                 cylinder = unfold.embryo3d.cylynder(emb3))
+                 cylinder = unfold.embryo3d.cylynder(emb3),
+                 sphere.cylinder = unfold.embryo3d.sphere.cylynder(emb3))
 
   emb3 <- interpolate2grid(emb3, cuts = cuts)
 
