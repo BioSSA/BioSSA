@@ -310,7 +310,8 @@ desweep <- function(emb3, emb2) {
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
                                                cuts = c(x = 200, depth = 10, phi = 200),
-                                               na.omit = TRUE) {
+                                               na.impute = TRUE,
+                                               circular = FALSE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, depth = x$depth, phi = x$phi)
@@ -319,7 +320,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   # Omit NAs FIXME
   mask <- !is.na(rowSums(uX))
 
-  if (na.omit) {
+  if (na.impute) {
     # Omit NAs in values
     mask <- mask & !is.na(v)
   }
@@ -330,18 +331,28 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   eps <- 1e-5
   ox <- seq(min(uX[, "x"]) + eps, max(uX[, "x"]) - eps, length.out = cuts["x"])
   odepth <- seq(min(uX[, "depth"]) + eps, max(uX[, "depth"]) - eps, length.out = cuts["depth"])
-  ophi <- seq(0, 2*pi, length.out = cuts["phi"] + 1); ophi <- ophi[-length(ophi)]
+
+  if (circular) {
+    ophi <- seq(0, 2*pi, length.out = cuts["phi"] + 1); ophi <- ophi[-length(ophi)]
+
+    uX.up <- uX.down <- uX
+    uX.up[, "phi"] <- uX[, "phi"] + 2*pi
+    uX.down[, "phi"] <- uX[, "phi"] - 2*pi
+    uX <- rbind(uX.down, uX, uX.up)
+    v <- rep(v, 3)
+  } else {
+    phi <- uX[, "phi"]
+    zphi <- atan2(mean(sin(phi)), mean(cos(phi)))
+    uX[, "phi"] <- (phi - zphi + 2*pi) %% (2*pi) - pi
+
+    ophi <- seq(min(uX[, "phi"]) + eps, max(uX[, "phi"]) - eps, length.out = cuts["phi"])
+  }
 
   grid <- as.matrix(expand.grid(x = ox, depth = odepth, phi = ophi))
-
-  uX.up <- uX.down <- uX
-  uX.up[, "phi"] <- uX[, "phi"] + 2*pi
-  uX.down[, "phi"] <- uX[, "phi"] - 2*pi
-
-  f <- linear.interpolate(grid, rbind(uX, uX.down, uX.up), rep(v, 3))
+  f <- linear.interpolate(grid, uX, v)
 
   dim(f) <- sapply(list(ox, odepth, ophi), length)
-  field <- list(x = ox, depth = odepth, phi = ophi, f = f)
+  field <- list(x = ox, depth = odepth, phi = ophi, f = f, circular = circular)
 
   x$field <- field
 
@@ -350,7 +361,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
 interpolate2grid.embryo3d.sphere <- function(x, ...,
                                              cuts = c(x = 200, y = 200, depth = 10),
-                                             na.omit = TRUE) {
+                                             na.impute = TRUE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, y = x$y, depth = x$depth)
@@ -359,7 +370,7 @@ interpolate2grid.embryo3d.sphere <- function(x, ...,
   # Omit NAs
   mask <- !is.na(rowSums(uX))
 
-  if (na.omit) {
+  if (na.impute) {
     # Omit NAs in values
     mask <- mask & !is.na(v)
   }
@@ -408,7 +419,7 @@ shrink <- function(what, to, eps = 1e-5) {
 }
 
 update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...,
-                                         impute.na = TRUE) {
+                                         restore.na = TRUE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
@@ -420,7 +431,7 @@ update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...,
   x$values <- approx3d(x$field$x, x$field$y, x$field$depth, x$field$f,
                        ox, oy, odepth)
 
-  if (!impute.na) {
+  if (!restore.na) {
     x$values[na.mask] <- NA
   }
 
@@ -437,7 +448,7 @@ approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
 }
 
 update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
-                                           impute.na = TRUE) {
+                                           restore.na = TRUE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
@@ -447,10 +458,15 @@ update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
   ophi <- x$phi; ophi <- shrink(ophi, x$field$phi)
 
   na.mask <- is.na(x$values)
-  x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
-                              ox, odepth, ophi)
+  if (x$field$circular) {
+    x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
+                                ox, odepth, ophi)
+  } else {
+    x$values <- approx3d(x$field$x, x$field$depth, x$field$phi, x$field$f,
+                         ox, odepth, ophi)
+  }
 
-  if (!impute.na) {
+  if (!restore.na) {
     x$values[na.mask] <- NA
   }
 
