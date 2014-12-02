@@ -268,7 +268,8 @@ desweep <- function(emb3, emb2) {
 }
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
-                                               cuts = c(x = 200, depth = 10, phi = 200)) {
+                                               cuts = c(x = 200, depth = 10, phi = 200),
+                                               na.omit = FALSE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, depth = x$depth, phi = x$phi)
@@ -276,6 +277,11 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
   # Omit NAs FIXME
   mask <- !is.na(rowSums(uX))
+
+  if (na.omit) {
+    # Omit NAs in values
+    mask <- mask & !is.na(v)
+  }
 
   uX <- uX[mask,, drop = FALSE]
   v <- v[mask]
@@ -302,7 +308,8 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 }
 
 interpolate2grid.embryo3d.sphere <- function(x, ...,
-                                             cuts = c(x = 200, y = 200, depth = 10)) {
+                                             cuts = c(x = 200, y = 200, depth = 10),
+                                             na.omit = FALSE) {
   stopifnot(.is.unfolded(x))
 
   uX <- cbind(x = x$x, y = x$y, depth = x$depth)
@@ -310,6 +317,11 @@ interpolate2grid.embryo3d.sphere <- function(x, ...,
 
   # Omit NAs
   mask <- !is.na(rowSums(uX))
+
+  if (na.omit) {
+    # Omit NAs in values
+    mask <- mask & !is.na(v)
+  }
 
   uX <- uX[mask,, drop = FALSE]
   v <- v[mask]
@@ -354,7 +366,8 @@ shrink <- function(what, to, eps = 1e-5) {
   what
 }
 
-update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...) {
+update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...,
+                                         impute.na = FALSE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
@@ -362,8 +375,13 @@ update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...) {
   oy <- x$y; oy <- shrink(oy, x$field$y)
   odepth <- x$depth; odepth <- shrink(odepth, x$field$depth)
 
+  na.mask <- is.na(x$values)
   x$values <- approx3d(x$field$x, x$field$y, x$field$depth, x$field$f,
                        ox, oy, odepth)
+
+  if (!impute.na) {
+    x$values[na.mask] <- NA
+  }
 
   x
 }
@@ -377,7 +395,8 @@ approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
   approx3d(x, y, z, f, xout, yout, zout)
 }
 
-update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...) {
+update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
+                                           impute.na = FALSE) {
   stopifnot(.is.interpolated(x))
 
   x$field$f[] <- as.numeric(newvalues)
@@ -386,8 +405,13 @@ update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...) {
   odepth <- x$depth; odepth <- shrink(odepth, x$field$depth)
   ophi <- x$phi; ophi <- shrink(ophi, x$field$phi)
 
+  na.mask <- is.na(x$values)
   x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
                               ox, odepth, ophi)
+
+  if (!impute.na) {
+    x$values[na.mask] <- NA
+  }
 
   x
 }
