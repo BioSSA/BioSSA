@@ -229,7 +229,7 @@ desweep <- function(emb3, emb2) {
   z <- X[, 3] / R
 
   R.median <- median(R)
-  dR.median <- median(R.outer - R.inner)
+  dR.median <- median(R.outer - R.inner, na.rm = TRUE)
   x.size <- diff(asin(range(x))) * R.median
   y.size <- diff(asin(range(y))) * R.median
 
