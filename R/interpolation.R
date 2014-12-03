@@ -9,11 +9,16 @@ load.python <- function() {
   return(TRUE)
 }
 
-linear.interpolate <- function(x, points, values) {
+linear.interpolate <- function(x, points, values, scale = FALSE) {
   stopifnot(load.python())
 
-  x <- as.matrix(x)
   points <- as.matrix(points)
+  points <- base::scale(points, center = FALSE, scale = scale)
+  if (!is.null(attr(points, "scaled:scale"))) {
+    scale <- attr(points, "scaled:scale")
+  }
+  x <- as.matrix(x)
+  x <- base::scale(x, center = FALSE, scale = scale)
   values <- as.vector(values)
 
   if (length(values) < nrow(points)) {
