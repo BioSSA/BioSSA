@@ -342,8 +342,9 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
     v <- rep(v, 3)
   } else {
     phi <- uX[, "phi"]
+    # FIXME FIXME FIXME fix backward (trilinear) interpolation
     zphi <- atan2(mean(sin(phi)), mean(cos(phi)))
-    uX[, "phi"] <- (phi - zphi + 2*pi) %% (2*pi) - pi
+    uX[, "phi"] <- (phi - zphi + 3*pi) %% (2*pi) - pi + zphi
 
     ophi <- seq(min(uX[, "phi"]) + eps, max(uX[, "phi"]) - eps, length.out = cuts["phi"])
   }
