@@ -353,7 +353,9 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   f <- linear.interpolate(grid, uX, v)
 
   dim(f) <- sapply(list(ox, odepth, ophi), length)
-  field <- list(x = ox, depth = odepth, phi = ophi, f = f, circular = circular)
+  field <- list(x = ox, depth = odepth, phi = ophi, f = f)
+
+  attr(field, "circular") <- circular
 
   x$field <- field
 
@@ -459,7 +461,7 @@ update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
   ophi <- x$phi; ophi <- shrink(ophi, x$field$phi)
 
   na.mask <- is.na(x$values)
-  if (x$field$circular) {
+  if (attr(x$field, "circular")) {
     x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
                                 ox, odepth, ophi)
   } else {
