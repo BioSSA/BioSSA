@@ -350,7 +350,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   }
 
   grid <- as.matrix(expand.grid(x = ox, depth = odepth, phi = ophi))
-  f <- linear.interpolate(grid, uX, v)
+  f <- linear.interpolate(grid, uX, v, scale = c(1, 200, 1))
 
   dim(f) <- sapply(list(ox, odepth, ophi), length)
   field <- list(x = ox, depth = odepth, phi = ophi, f = f)
