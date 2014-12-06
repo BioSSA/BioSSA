@@ -302,8 +302,9 @@ desweep <- function(emb3, emb2) {
 
   phi <- atan2(y, x)
   r <- sqrt(x^2 + y^2)
-  x <- atan2(z, r) # TODO use proper conformal mercator projection
-  # http://mathworld.wolfram.com/MercatorProjection.html
+  x <- atan2(z, r) # Equidistant projection
+  # May be use proper conformal mercator projection
+  # see: http://mathworld.wolfram.com/MercatorProjection.html
 
   cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
 }
