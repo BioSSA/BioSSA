@@ -307,7 +307,12 @@ desweep <- function(emb3, emb2) {
   # see: http://mathworld.wolfram.com/MercatorProjection.html
   # NO! because of interpolation will be mad! Equidistant only!!!111111
 
-  cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
+  units <- c(x = R.median, depth = dR.median, phi = R.median)
+
+  res <- cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
+  attr(res, "units") <- units
+
+  invisible(res)
 }
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
@@ -352,7 +357,9 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   }
 
   grid <- as.matrix(expand.grid(x = ox, depth = odepth, phi = ophi))
-  f <- linear.interpolate(grid, uX, v, scale = c(1, 200, 1))
+
+  units <- attr(x, "units")
+  f <- linear.interpolate(grid, uX, v, scale = 1 / units[c("x", "depth", "phi")])
 
   dim(f) <- sapply(list(ox, odepth, ophi), length)
   field <- list(x = ox, depth = odepth, phi = ophi, f = f)
@@ -544,6 +551,7 @@ unfold.embryo3d.sphere.cylynder <- function(x, ...) {
   x$x <- uX[, "x"]
   x$phi <- uX[, "phi"]
   x$depth <- uX[, "depth"]
+  attr(x, "units") <- attr(uX, "units")
 
   class(x) <- c("embryo3d.sphere.cylinder", "embryo3d.cylinder", "embryo3d")
   x
