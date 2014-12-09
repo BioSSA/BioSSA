@@ -305,6 +305,7 @@ desweep <- function(emb3, emb2) {
   x <- atan2(z, r) # Equidistant projection
   # May be use proper conformal mercator projection
   # see: http://mathworld.wolfram.com/MercatorProjection.html
+  # NO! because of interpolation will be mad! Equidistant only!!!111111
 
   cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
 }
