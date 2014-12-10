@@ -7,7 +7,8 @@ interpolate2grid <- function(x, ...)
 
 BioSSA3d.formula <- function(x, data = NULL, ...,
                             cuts = c(x = 100, y = 100, phi = 100, depth = 10),
-                            kind = c("sphere", "cylinder", "sphere.cylinder")) {
+                            kind = c("sphere", "cylinder", "sphere.cylinder"),
+                            alpha.impute = Inf, circular = FALSE) {
   kind <- match.arg(kind)
 
   emb3 <- embryo3d(x, data = data)
@@ -16,12 +17,28 @@ BioSSA3d.formula <- function(x, data = NULL, ...,
                  cylinder = unfold.embryo3d.cylynder(emb3),
                  sphere.cylinder = unfold.embryo3d.sphere.cylynder(emb3))
 
-  emb3 <- interpolate2grid(emb3, cuts = cuts)
+  emb3 <- interpolate2grid(emb3, cuts = cuts,
+                           alpha.impute = alpha.impute,
+                           circular = circular)
 
   BioSSA3d(emb3, ...)
 }
 
-BioSSA3d.embryo3d <- function(x, L, ...) {
+ellipse.window <- function(d) {
+  w <- array(FALSE, dim = d)
+
+  grids <- lapply(d, function(n) seq(-1, 1, length.out = n))
+  grid <- do.call(expand.grid, grids)
+
+  grid <- as.matrix(grid)
+  pred <- rowSums(grid^2) <= 1
+  pred <- array(pred, dim = d)
+  w[pred] <- TRUE
+
+  w
+}
+
+BioSSA3d.embryo3d <- function(x, L, ..., rel.window = TRUE, elliptical = FALSE) {
   stopifnot(.is.interpolated(x))
   f <- x$field$f
 
@@ -31,7 +48,17 @@ BioSSA3d.embryo3d <- function(x, L, ...) {
     circular <- c(FALSE, FALSE, TRUE)
   }
 
-  dec <- ssa(f, L = L, ..., kind = "nd-ssa", circular = circular)
+  if (rel.window) {
+    L <- L * dim(f)
+  }
+
+  if (elliptical) {
+    wmask <- ellipse.window(L)
+  } else {
+    wmask <- NULL
+  }
+
+  dec <- ssa(f, L = L, wmask = wmask, ..., kind = "nd-ssa", circular = circular)
 
   res <- list(emb3 = x,
               ssa = dec)
@@ -75,17 +102,21 @@ plot.BioSSA3d <- plot.BioSSA2d
 
 
 
-field.section.embryo3d <- function(emb3, slice = list(), units = c("percent", "original")) {
+field.section.embryo3d <- function(emb3, slice = list(), units = c("rate", "original")) {
   stopifnot(.is.interpolated(emb3))
 
   units <- match.arg(units)
 
   field <- emb3$field
 
-  # if (identical(units, "percent")) {
-  #   field$x <- (field$x - emb2$x0perc) / emb2$x1perc
-  #   field$y <- (field$y - emb2$y0perc) / emb2$y1perc
-  # }
+  if (identical(units, "original")) {
+    u <- attr(emb3, "units")
+    for (name in names(field)) {
+      if (name %in% names(u)) {
+        field[[name]] <- field[[name]] * u[name]
+      }
+    }
+  }
 
   # Determine free coord
   free.coord <- setdiff(names(field), c("f", names(slice)))
@@ -108,10 +139,11 @@ field.section.embryo3d <- function(emb3, slice = list(), units = c("percent", "o
   names(slice.idx) <- NULL
 
   values <- do.call("[", c(list(field$f, drop = TRUE), slice.idx))
-  list(x = field[[free.coord]], y = values, free.coord = free.coord)
+  list(x = emb3$field[[free.coord]] * attr(emb3, "units")[free.coord],
+       y = values, free.coord = free.coord)
 }
 
-subset.embryo3d <- function(x, subset = list(), tolerance, ...) {
+subset.embryo3d <- function(x, subset = list(), tolerance, ..., na.rm = TRUE) {
   x$field <- NULL
 
   mask <- rep(TRUE, length(x$x3d)) # TODO make proper nrow method
@@ -134,6 +166,18 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ...) {
   for (name in names(x)) {
     x[[name]] <- x[[name]][mask]
   }
+
+  if (na.rm) {
+    mask <- rep(TRUE, length(x[[1]]))
+    for (name in names(x)) {
+      mask <- mask & !is.na(x[[name]])
+    }
+
+    for (name in names(x)) {
+      x[[name]] <- x[[name]][mask]
+    }
+  }
+
 
   x
 }
@@ -170,7 +214,7 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ...) {
 #
 .plot1d.embryo3d.section.field <- function(x,
                                            slice,
-                                           units = c("percent", "original"),
+                                           units = c("rate", "original"),
                                            ...,
                                            ref = FALSE) {
   dots <- list(...)
@@ -199,13 +243,14 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ...) {
 .plot1d.embryo3d.section.nuclei <- function(x,
                                             slice,
                                             tolerance = 0.1,
-                                            units = c("percent", "original"),
+                                            units = c("rate", "original"),
                                             ...,
+                                            na.rm = TRUE,
                                             ref = FALSE) {
   dots <- list(...)
   units <- match.arg(units)
 
-  stripe <- subset(x, subset = slice, tolerance = tolerance)
+  stripe <- subset(x, subset = slice, tolerance = tolerance, na.rm = na.rm)
   free.coord <- setdiff(names(x), c(names(slice), "field", "values", "x3d", "y3d", "z3d"))
 
   dots <- .defaults(dots,
@@ -216,6 +261,15 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ...) {
                     xlab = sprintf("Spatial coordinate: %s%s",
                                    free.coord,
                                    if (identical(units, "percent")) ", %" else ""))
+
+  if (identical(units, "original")) {
+    u <- attr(x, "units")
+    for (name in names(stripe)) {
+      if (name %in% names(u)) {
+        stripe[[name]] <- stripe[[name]] * u[name]
+      }
+    }
+  }
 
   stripe$xvalues <- stripe[[free.coord]]
   res <- do.call("xyplot", c(list(values ~ xvalues, data = stripe), dots))

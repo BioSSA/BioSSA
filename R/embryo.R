@@ -318,6 +318,7 @@ desweep <- function(emb3, emb2) {
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
                                                cuts = c(x = 200, depth = 10, phi = 200),
                                                na.impute = TRUE,
+                                               alpha.impute = 5000,
                                                circular = FALSE) {
   stopifnot(.is.unfolded(x))
 
@@ -326,14 +327,27 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
   # Omit NAs FIXME
   mask <- !is.na(rowSums(uX))
+  uX <- uX[mask,, drop = FALSE]
+  v <- v[mask]
 
   if (na.impute) {
     # Omit NAs in values
-    mask <- mask & !is.na(v)
-  }
+    if (is.finite(alpha.impute)) {
+      uX.nna <- uX[!is.na(v),, drop = FALSE]
+      uX.nna <- scale(uX.nna, center = FALSE, scale = 1/attr(x, "units"))
+      uX.s <- scale(uX, center = FALSE, scale = 1/attr(x, "units"))
 
-  uX <- uX[mask,, drop = FALSE]
-  v <- v[mask]
+      ch <- ashape3d(uX.nna, alpha = c(Inf, alpha.impute))
+      b.ch <- inashape3d(ch, 1, uX.s)
+      b.ash <- inashape3d(ch, 2, uX.s)
+      mask <- !is.na(v) |  (b.ch & !b.ash) # in the concave hull and not in the convex one
+    } else {
+      mask <- !is.na(v)
+    }
+
+    uX <- uX[mask,, drop = FALSE]
+    v <- v[mask]
+  }
 
   eps <- 1e-5
   ox <- seq(min(uX[, "x"]) + eps, max(uX[, "x"]) - eps, length.out = cuts["x"])
