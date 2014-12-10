@@ -317,6 +317,7 @@ desweep <- function(emb3, emb2) {
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
                                                cuts = c(x = 200, depth = 10, phi = 200),
+                                               step,
                                                na.impute = TRUE,
                                                alpha.impute = 5000,
                                                circular = FALSE) {
@@ -347,6 +348,15 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
 
     uX <- uX[mask,, drop = FALSE]
     v <- v[mask]
+  }
+
+  if (!missing(step)) {
+    if (is.null(names(step))) {
+      drs <- apply(uX, 2, function(x) diff(range(x)))
+      u <- attr(x, "units")
+      drs <- drs * u[names(drs)]
+      cuts <- ceiling(drs / step)
+    }
   }
 
   eps <- 1e-5
