@@ -312,12 +312,15 @@ desweep <- function(emb3, emb2) {
   res <- cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
   attr(res, "units") <- units
 
+  sizes <- c(R = R.median, D = dR.median)
+  attr(res, "original.size") <- sizes
+
   invisible(res)
 }
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
                                                cuts = c(x = 200, depth = 10, phi = 200),
-                                               step,
+                                               step = NULL,
                                                na.impute = TRUE,
                                                alpha.impute = 5000,
                                                circular = FALSE) {
@@ -350,13 +353,20 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
     v <- v[mask]
   }
 
-  if (!missing(step)) {
-    if (is.null(names(step))) {
-      drs <- apply(uX, 2, function(x) diff(range(x)))
-      u <- attr(x, "units")
-      drs <- drs * u[names(drs)]
-      cuts <- ceiling(drs / step)
+  drs <- apply(uX, 2, function(x) diff(range(x)))
+  u <- attr(x, "units")
+  drs <- drs * u[names(drs)]
+
+  if (!is.null(step)) {
+    if (is.null(names(cuts))) {
+      cuts <- drs / step
+    } else {
+      cuts <- drs / step[names(drs)]
     }
+  }
+
+  if (is.null(names(cuts))) {
+    cuts <- ceiling(cuts^length(drs) / prod(drs) * drs)
   }
 
   eps <- 1e-5
@@ -391,6 +401,8 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   attr(field, "circular") <- circular
 
   x$field <- field
+
+  attr(x, "bbox") <- drs
 
   x
 }
@@ -576,6 +588,7 @@ unfold.embryo3d.sphere.cylynder <- function(x, ...) {
   x$phi <- uX[, "phi"]
   x$depth <- uX[, "depth"]
   attr(x, "units") <- attr(uX, "units")
+  attr(x, "original.size") <- attr(uX, "original.size")
 
   class(x) <- c("embryo3d.sphere.cylinder", "embryo3d.cylinder", "embryo3d")
   x

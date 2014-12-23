@@ -56,3 +56,5 @@ S3method("reconstruct", "BioSSA2d3d")
 S3method("plot", "BioSSA3d")
 S3method("decompose", "BioSSA2d3d")
 S3method("noise.model", "BioSSA3d")
+
+S3method("print", "BioSSA3d")

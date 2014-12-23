@@ -7,6 +7,7 @@ interpolate2grid <- function(x, ...)
 
 BioSSA3d.formula <- function(x, data = NULL, ...,
                             cuts = c(x = 100, y = 100, phi = 100, depth = 10),
+                            step = NULL,
                             kind = c("sphere", "cylinder", "sphere.cylinder"),
                             alpha.impute = Inf, circular = FALSE) {
   kind <- match.arg(kind)
@@ -18,20 +19,23 @@ BioSSA3d.formula <- function(x, data = NULL, ...,
                  sphere.cylinder = unfold.embryo3d.sphere.cylynder(emb3))
 
   emb3 <- interpolate2grid(emb3, cuts = cuts,
+                           step = step,
                            alpha.impute = alpha.impute,
                            circular = circular)
 
   BioSSA3d(emb3, ...)
 }
 
-ellipse.window <- function(d) {
+ellipse.window <- function(d, rate = pi/6) {
   w <- array(FALSE, dim = d)
 
   grids <- lapply(d, function(n) seq(-1, 1, length.out = n))
   grid <- do.call(expand.grid, grids)
 
   grid <- as.matrix(grid)
-  pred <- rowSums(grid^2) <= 1
+  R <- rowSums(grid^2)
+  q <- quantile(R, level = rate)
+  pred <- R <= rate
   pred <- array(pred, dim = d)
   w[pred] <- TRUE
 
@@ -45,11 +49,15 @@ BioSSA3d.embryo3d <- function(x, L, ..., rel.window = TRUE, elliptical = FALSE) 
   if (inherits(x, "embryo3d.sphere")) {
     circular <- c(FALSE, FALSE, FALSE)
   } else if (inherits(x, "embryo3d.cylinder")) {
-    circular <- c(FALSE, FALSE, TRUE)
+    if (attr(x$field, "circular")) {
+      circular <- c(FALSE, FALSE, TRUE)
+    } else {
+      circular <- c(FALSE, FALSE, FALSE)
+    }
   }
 
   if (rel.window) {
-    L <- L * dim(f)
+    L <- ceiling(L * dim(f))
   }
 
   if (elliptical) {
@@ -65,6 +73,43 @@ BioSSA3d.embryo3d <- function(x, L, ..., rel.window = TRUE, elliptical = FALSE) 
   class(res) <- "BioSSA3d"
 
   res
+}
+
+window.nuclei <- function(ss) {
+  wmask <- ss$ssa$wmask
+  if (is.null(wmask)) {
+    wmask <- array(TRUE, ss$ssa$window)
+  }
+  sum(!is.na(ss$emb3$v)) * sum(wmask) / sum(!is.na(ss$emb3$field$f))
+}
+
+
+
+print.BioSSA3d <- function(x, ...) {
+  print("Bounding box sizes")
+  print(attr(x$emb3, "bbox"))
+
+  print("Dimension unit expansions")
+  print(attr(x$emb3, "units"))
+
+  print("Nuclei per window")
+  print(window.nuclei(x))
+
+  print("Egg original size")
+  print(attr(x$emb3, "original.size"))
+
+  print("N points")
+  print(length(x$emb3$values))
+
+  print("N points with signal")
+  print(sum(!is.na(x$emb3$values)))
+
+  rec <- reconstruct(x, 1)
+  print("N covered points with signal")
+  print(sum(!is.na(rec$F1$values)))
+
+
+  print(x$ssa)
 }
 
 decompose.BioSSA3d <- function(x, ...) {
@@ -271,7 +316,7 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ..., na.rm = TRUE) {
     }
   }
 
-  stripe$xvalues <- stripe[[free.coord]]
+  stripe$xvalues <- stripe[[free.coord]] * attr(x, "units")[free.coord]
   res <- do.call("xyplot", c(list(values ~ xvalues, data = stripe), dots))
 
   if (ref) {
