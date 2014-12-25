@@ -291,7 +291,7 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ..., na.rm = TRUE) {
                                             units = c("rate", "original"),
                                             ...,
                                             na.rm = TRUE,
-                                            ref = FALSE) {
+                                            ref = FALSE, symmetric = FALSE) {
   dots <- list(...)
   units <- match.arg(units)
 
@@ -316,8 +316,19 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ..., na.rm = TRUE) {
     }
   }
 
+  if (symmetric) {
+    prepanel <- function(...) {
+      res <- prepanel.default.xyplot(...)
+      res$ylim <- range(res$ylim, -res$ylim)
+
+      res
+    }
+  } else {
+    prepanel <- prepanel.default.xyplot
+  }
+
   stripe$xvalues <- stripe[[free.coord]] * attr(x, "units")[free.coord]
-  res <- do.call("xyplot", c(list(values ~ xvalues, data = stripe), dots))
+  res <- do.call("xyplot", c(list(values ~ xvalues, data = stripe, prepanel = prepanel), dots))
 
   if (ref) {
     res <- res + layer(panel.abline(h = 0, reference = TRUE))
