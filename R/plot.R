@@ -28,7 +28,7 @@
   do.call("plot3d", c(list(data$x3d, data$y3d, data$z3d), dots))
 }
 
-.plot.embryo3d.hull <- function(data, ..., alpha = Inf) {
+.plot.embryo3d.hull <- function(data, ..., alpha = Inf, add = FALSE) {
   data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
   mask <- !is.na(data$values)
   data <- data[mask, ]
@@ -49,11 +49,13 @@
                     zlab = "z")
   dots$col <- .get.colors(data$values, t(ach), col = dots$col)
 
-  plot3d(data$x3d, data$y3d, data$z3d, type = "n",
-         aspect = dots$aspect,
-         xlab = dots$xlab,
-         ylab = dots$ylab,
-         zlab = dots$zlab)
+  if (!add) {
+    plot3d(data$x3d, data$y3d, data$z3d, type = "n",
+           aspect = dots$aspect,
+           xlab = dots$xlab,
+           ylab = dots$ylab,
+           zlab = dots$zlab)
+  }
   do.call("shade3d", c(list(mesh), dots))
 }
 
