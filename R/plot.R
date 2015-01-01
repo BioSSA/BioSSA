@@ -38,7 +38,7 @@
   triang <- ash$triang
   ach <- triang[triang[, 9] == 2, 1:3] # Extract regular triangles (0 --- not in, 1 --- interior, 2 --- regular, 3 --- singular)
 
-  mesh <- tmesh3d(t(cbind(X, 0.5)), t(ach))
+  mesh <- tmesh3d(t(cbind(X, 1)), t(ach))
 
   dots <- list(...)
   dots <- .defaults(dots,
