@@ -46,6 +46,7 @@
                     col = c("blue", "red"),
                     xlab = "x",
                     ylab = "y",
+                    override = FALSE,
                     zlab = "z")
   dots$col <- .get.colors(data$values, t(ach), col = dots$col)
 
