@@ -9,7 +9,7 @@ load.python <- function() {
   return(TRUE)
 }
 
-linear.interpolate <- function(x, points, values, scale = FALSE) {
+linear.interpolate.old <- function(x, points, values, scale = FALSE) {
   stopifnot(load.python())
 
   points <- as.matrix(points)
@@ -43,6 +43,20 @@ linear.interpolate <- function(x, points, values, scale = FALSE) {
   res[is.nan(res)] <- NA_real_
 
   res
+}
+
+linear.interpolate <- function(...) {
+  cgal.result <- LinearInterpolator:::linear.interpolate(...)
+  print("Interpolated")
+  # python.result <- linear.interpolate.old(...)
+  #
+  # eq.res <- all.equal(cgal.result, python.result)
+  # print(eq.res)
+  # mask <- is.na(cgal.result) | is.na(python.result)
+  #
+  # print(all.equal(cgal.result[!mask], python.result[!mask]))
+  #
+  cgal.result
 }
 
 interp.with.NAs <- function(x, y, z, ..., na.process = c("NA", "omit")) {

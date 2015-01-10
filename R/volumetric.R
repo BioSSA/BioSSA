@@ -14,9 +14,9 @@ BioSSA3d.formula <- function(x, data = NULL, ...,
 
   emb3 <- embryo3d(x, data = data)
   emb3 <- switch(kind,
-                 sphere = unfold.embryo3d.sphere(emb3),
+                 sphere = unfold.embryo3d.sphere(emb3, area = "pole"),
                  cylinder = unfold.embryo3d.cylynder(emb3),
-                 sphere.cylinder = unfold.embryo3d.sphere.cylynder(emb3))
+                 sphere.cylinder = unfold.embryo3d.sphere(emb3, area = "equator"))
 
   emb3 <- interpolate2grid(emb3, cuts = cuts,
                            step = step,

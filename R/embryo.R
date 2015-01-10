@@ -212,44 +212,6 @@ desweep <- function(emb3, emb2) {
   R
 }
 
-.unfold3d.sphere <- function(X) {
-  # X <- rotate.sphere(X) must be done
-
-  R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
-
-  R.inner <- .radius.sphere(X, side = "inner")
-  R.outer <- .radius.sphere(X, side = "outer")
-
-  depth <- (R - R.inner) / (R.outer - R.inner)
-  depth[depth > 1] <- 1
-  depth[depth < 0] <- 0
-
-  x <- X[, 1] / R
-  y <- X[, 2] / R
-  z <- X[, 3] / R
-
-  R.median <- median(R)
-  dR.median <- median(R.outer - R.inner, na.rm = TRUE)
-  x.size <- diff(asin(range(x))) * R.median
-  y.size <- diff(asin(range(y))) * R.median
-
-  N <- nrow(X)
-  dx <- x.size; dy <- y.size; dd <- dR.median
-  vol <- volume_ashape3d(ashape3d(X, alpha = 250)) # TODO Use proper volume estimation
-  rvol <- dx * dy * dd
-  dense <- N / vol
-  xN <- dense^(1/3) * dx
-  yN <- dense^(1/3) * dy
-  dN <- dense^(1/3) * dd
-  print(sprintf("dx = %f, dy = %f, dd = %f, N = %d, dense = %f, dN = %f, vol = %f, rvol = %f, R = %f",
-                dx, dy, dd, N, dense, dN, vol, rvol, R.median))
-
-  x <- x / (z + 1)
-  y <- y / (z + 1)
-
-  cbind(x = x, y = y, depth = depth) # All of them are normalized
-}
-
 .unfold3d.cylinder <- function(X) {
   # X <- rotate.cylinder(X) must be done
 
@@ -267,7 +229,9 @@ desweep <- function(emb3, emb2) {
   cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
 }
 
-.unfold3d.sphere.cylinder <- function(X) {
+.unfold3d.sphere <- function(X,
+                             area = c("equator", "pole")) {
+  area <- match.arg(area)
   # X <- rotate.sphere(X) must be done
 
   R <- sqrt(X[, 1]^2 + X[, 2]^2 + X[, 3]^2)
@@ -285,27 +249,18 @@ desweep <- function(emb3, emb2) {
 
   R.median <- median(R)
   dR.median <- median(R.outer - R.inner, na.rm = TRUE)
-  x.size <- diff(asin(range(x))) * R.median
-  y.size <- diff(asin(range(y))) * R.median
 
-  N <- nrow(X)
-  dx <- x.size; dy <- y.size; dd <- dR.median
-  vol <- volume_ashape3d(ashape3d(X, alpha = 75)) # TODO Use proper volume estimation
-  rvol <- dx * dy * dd
-  dense <- N / vol
-  xN <- dense^(1/3) * dx
-  yN <- dense^(1/3) * dy
-  dN <- dense^(1/3) * dd
-  print(sprintf("dx = %f, dy = %f, dd = %f, N = %d, dense = %f, dN = %f, vol = %f, rvol = %f, R = %f",
-                dx, dy, dd, N, dense, dN, vol, rvol, R.median))
-
-
-  phi <- atan2(y, x)
-  r <- sqrt(x^2 + y^2)
-  x <- atan2(z, r) # Equidistant projection
-  # May be use proper conformal mercator projection
-  # see: http://mathworld.wolfram.com/MercatorProjection.html
-  # NO! because of interpolation will be mad! Equidistant only!!!111111
+  if (identical(area, "equator")) {
+    phi <- atan2(y, x)
+    r <- sqrt(x^2 + y^2)
+    x <- atan2(z, r) # Equidistant projection OR x <- asin(z)
+  } else if (identical(area, "pole")) {
+    cur <- acos(-z) # FIXME !!!!!!! Use proper rotation
+    r <- sqrt(x^2 + y^2)
+    x <- x/r * cur
+    phi <- y <- y/r * cur
+    # FIXME Use proper directions names
+  }
 
   units <- c(x = R.median, depth = dR.median, phi = R.median)
 
@@ -341,7 +296,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
       uX.nna <- scale(uX.nna, center = FALSE, scale = 1/attr(x, "units"))
       uX.s <- scale(uX, center = FALSE, scale = 1/attr(x, "units"))
 
-      ch <- ashape3d(uX.nna, alpha = c(Inf, alpha.impute))
+      ch <- ashape3d(uX.nna, alpha = c(Inf, alpha.impute), pert = TRUE)
       b.ch <- inashape3d(ch, 1, uX.s)
       b.ash <- inashape3d(ch, 2, uX.s)
       mask <- !is.na(v) |  (b.ch & !b.ash) # in the concave hull and not in the convex one
@@ -366,7 +321,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   }
 
   if (is.null(names(cuts))) {
-    cuts <- ceiling(cuts^length(drs) / prod(drs) * drs)
+    cuts <- ceiling(cuts * drs / prod(drs)^(1 / length(drs)))
   }
 
   eps <- 1e-5
@@ -550,20 +505,6 @@ rotate.sphere <- function(X, center = find.center.sphere(X)) {
   X %*% U
 }
 
-unfold.embryo3d.sphere <- function(x, ...) {
-  X <- cbind(x$x3d, x$y3d, x$z3d)
-
-  X <- rotate.sphere(X)
-
-  uX <- .unfold3d.sphere(X)
-  x$x <- uX[, "x"]
-  x$y <- uX[, "y"]
-  x$depth <- uX[, "depth"]
-
-  class(x) <- c("embryo3d.sphere", "embryo3d")
-  x
-}
-
 unfold.embryo3d.cylynder <- function(x, ...) {
   X <- cbind(x$x3d, x$y3d, x$z3d)
 
@@ -578,12 +519,12 @@ unfold.embryo3d.cylynder <- function(x, ...) {
   x
 }
 
-unfold.embryo3d.sphere.cylynder <- function(x, ...) {
+unfold.embryo3d.sphere <- function(x, ..., area = "equator") {
   X <- cbind(x$x3d, x$y3d, x$z3d)
 
   X <- rotate.sphere(X)
 
-  uX <- .unfold3d.sphere.cylinder(X)
+  uX <- .unfold3d.sphere(X, area = area)
   x$x <- uX[, "x"]
   x$phi <- uX[, "phi"]
   x$depth <- uX[, "depth"]
