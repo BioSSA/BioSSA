@@ -3,32 +3,35 @@
   modifyList(dots, x)
 }
 
-.get.colors <- function(values, indices = seq_along(values), col = c("blue", "red")) {
+.get.colors <- function(values, indices = seq_along(values), col = c("blue", "red"),
+                        scale.range = range(values, na.rm = TRUE)) {
   values[!is.finite(values)] <- mean(values[is.finite(values)])
-  grade <- (values - min(values)) / diff(range(values))
+  grade <- (values - scale.range[1]) / diff(scale.range)
   cl <- colorRamp(col)(grade[indices]) / 256
   rgb(cl[, 1], cl[, 2], cl[, 3])
 }
 
-.plot.embryo3d.nuclei <- function(data, ..., plot.type = "s") {
+.plot.embryo3d.nuclei <- function(data, ..., plot.type = "s",
+                                  scale.range = range(data$values, na.rm = TRUE)) {
   data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
   mask <- !is.na(data$values)
   data <- data[mask, ]
 
   dots <- list(...)
   dots <- .defaults(dots,
-                    aspect = FALSE,
+                    aspect = "iso",
                     type = plot.type,
                     col = c("blue", "red"),
                     xlab = "x",
                     ylab = "y",
                     zlab = "z")
-  dots$col <- .get.colors(data$values, col = dots$col)
+  dots$col <- .get.colors(data$values, col = dots$col, scale.range = scale.range)
 
   do.call("plot3d", c(list(data$x3d, data$y3d, data$z3d), dots))
 }
 
-.plot.embryo3d.hull <- function(data, ..., alpha = Inf, add = FALSE) {
+.plot.embryo3d.hull <- function(data, ..., alpha = Inf, add = FALSE,
+                                scale.range = range(data$values, na.rm = TRUE)) {
   data <- as.data.frame(data[c("x3d", "y3d", "z3d", "values")])
   mask <- !is.na(data$values)
   data <- data[mask, ]
@@ -42,13 +45,13 @@
 
   dots <- list(...)
   dots <- .defaults(dots,
-                    aspect = FALSE,
+                    aspect = "iso",
                     col = c("blue", "red"),
                     xlab = "x",
                     ylab = "y",
                     override = FALSE,
                     zlab = "z")
-  dots$col <- .get.colors(data$values, t(ach), col = dots$col)
+  dots$col <- .get.colors(data$values, t(ach), col = dots$col, scale.range = scale.range)
 
   if (!add) {
     plot3d(data$x3d, data$y3d, data$z3d, type = "n",
@@ -131,7 +134,8 @@ field.section2d.embryo3d <- function(emb3, slice = list(), units = c("percent", 
                                               units = c("percent", "original"),
                                               ...,
                                               ref = FALSE, add = FALSE,
-                                              grid = c("x", "y", "z")) {
+                                              grid = c("x", "y", "z"),
+                                              symmetric = FALSE) {
   dots <- list(...)
   units <- match.arg(units)
 
@@ -151,7 +155,8 @@ field.section2d.embryo3d <- function(emb3, slice = list(), units = c("percent", 
                     size = 1,
                     axes = TRUE,
                     bbox = TRUE,
-                    col = grey(c(0, 1)))
+                    col = grey(c(0, 1)),
+                    zlim = if (!symmetric) range(stripe$values) else range(stripe$values, -stripe$values))
   plot3d(stripe$xvalues, stripe$yvalues, stripe$values,
          type = dots$type,
          main = dots$main,
