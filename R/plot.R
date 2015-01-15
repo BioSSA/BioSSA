@@ -6,6 +6,8 @@
 .get.colors <- function(values, indices = seq_along(values), col = c("blue", "red"),
                         scale.range = range(values, na.rm = TRUE)) {
   values[!is.finite(values)] <- mean(values[is.finite(values)])
+  values[values < scale.range[1]] <- scale.range[1]
+  values[values > scale.range[2]] <- scale.range[2]
   grade <- (values - scale.range[1]) / diff(scale.range)
   cl <- colorRamp(col)(grade[indices]) / 256
   rgb(cl[, 1], cl[, 2], cl[, 3])
