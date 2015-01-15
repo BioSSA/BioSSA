@@ -253,18 +253,18 @@ desweep <- function(emb3, emb2) {
   if (identical(area, "equator")) {
     phi <- atan2(y, x)
     r <- sqrt(x^2 + y^2)
-    x <- atan2(z, r) # Equidistant projection OR x <- asin(z)
+    psi <- atan2(z, r) # Equidistant projection OR x <- asin(z)
   } else if (identical(area, "pole")) {
     cur <- acos(-z) # FIXME !!!!!!! Use proper rotation
     r <- sqrt(x^2 + y^2)
-    x <- x/r * cur
-    phi <- y <- y/r * cur
+    psi <- x/r * cur
+    phi <- y/r * cur
     # FIXME Use proper directions names
   }
 
-  units <- c(x = R.median, depth = dR.median, phi = R.median)
+  units <- c(psi = R.median, depth = dR.median, phi = R.median)
 
-  res <- cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
+  res <- cbind(psi = psi, depth = depth, phi = phi) # phi(long) is 2pi-periodic, psi(latt) is not
   attr(res, "units") <- units
 
   sizes <- c(R = R.median, D = dR.median)
@@ -274,14 +274,14 @@ desweep <- function(emb3, emb2) {
 }
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
-                                               cuts = c(x = 200, depth = 10, phi = 200),
+                                               cuts = 100,
                                                step = NULL,
                                                na.impute = TRUE,
                                                alpha.impute = 5000,
                                                circular = FALSE) {
   stopifnot(.is.unfolded(x))
 
-  uX <- cbind(x = x$x, depth = x$depth, phi = x$phi)
+  uX <- cbind(psi = x$psi, depth = x$depth, phi = x$phi)
   v <- x$values
 
   # Omit NAs FIXME
@@ -325,7 +325,7 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   }
 
   eps <- 1e-5
-  ox <- seq(min(uX[, "x"]) + eps, max(uX[, "x"]) - eps, length.out = cuts["x"])
+  opsi <- seq(min(uX[, "psi"]) + eps, max(uX[, "psi"]) - eps, length.out = cuts["psi"])
   odepth <- seq(min(uX[, "depth"]) + eps, max(uX[, "depth"]) - eps, length.out = cuts["depth"])
 
   if (circular) {
@@ -345,13 +345,13 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
     ophi <- seq(min(uX[, "phi"]) + eps, max(uX[, "phi"]) - eps, length.out = cuts["phi"])
   }
 
-  grid <- as.matrix(expand.grid(x = ox, depth = odepth, phi = ophi))
+  grid <- as.matrix(expand.grid(psi = opsi, depth = odepth, phi = ophi))
 
   units <- attr(x, "units")
-  f <- linear.interpolate(grid, uX, v, scale = 1 / units[c("x", "depth", "phi")])
+  f <- linear.interpolate(grid, uX, v, scale = 1 / units[c("psi", "depth", "phi")])
 
-  dim(f) <- sapply(list(ox, odepth, ophi), length)
-  field <- list(x = ox, depth = odepth, phi = ophi, f = f)
+  dim(f) <- sapply(list(opsi, odepth, ophi), length)
+  field <- list(psi = opsi, depth = odepth, phi = ophi, f = f)
 
   attr(field, "circular") <- circular
 
@@ -456,16 +456,16 @@ update.field.embryo3d.cylinder <- function(x, newvalues = x$field$f, ...,
 
   x$field$f[] <- as.numeric(newvalues)
 
-  ox <- x$x; ox <- shrink(ox, x$field$x)
+  ox <- x$psi; ox <- shrink(ox, x$field$psi)
   odepth <- x$depth; odepth <- shrink(odepth, x$field$depth)
   ophi <- x$phi; ophi <- shrink(ophi, x$field$phi)
 
   na.mask <- is.na(x$values)
   if (attr(x$field, "circular")) {
-    x$values <- approx3d.cycled(x$field$x, x$field$depth, x$field$phi, x$field$f,
+    x$values <- approx3d.cycled(x$field$psi, x$field$depth, x$field$phi, x$field$f,
                                 ox, odepth, ophi)
   } else {
-    x$values <- approx3d(x$field$x, x$field$depth, x$field$phi, x$field$f,
+    x$values <- approx3d(x$field$psi, x$field$depth, x$field$phi, x$field$f,
                          ox, odepth, ophi)
   }
 
@@ -525,7 +525,7 @@ unfold.embryo3d.sphere <- function(x, ..., area = "equator") {
   X <- rotate.sphere(X)
 
   uX <- .unfold3d.sphere(X, area = area)
-  x$x <- uX[, "x"]
+  x$psi <- uX[, "psi"]
   x$phi <- uX[, "phi"]
   x$depth <- uX[, "depth"]
   attr(x, "units") <- attr(uX, "units")
