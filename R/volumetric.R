@@ -34,8 +34,8 @@ ellipse.window <- function(d, rate = pi/6) {
 
   grid <- as.matrix(grid)
   R <- rowSums(grid^2)
-  q <- quantile(R, level = rate)
-  pred <- R <= rate
+  q <- quantile(R, probs = rate)
+  pred <- R <= q
   pred <- array(pred, dim = d)
   w[pred] <- TRUE
 
