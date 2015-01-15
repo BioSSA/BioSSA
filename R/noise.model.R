@@ -194,7 +194,7 @@ plot.noise.model <- function(x,
     ylab.default <- sprintf("|%s|", ylab.default)
   }
 
-  xlim.default <- range(0, x$trend)
+  xlim.default <- range(0, abs(x$trend))
   ylim.default <- range(0, x$residuals.means)
   if (draw.residuals)
     ylim.default <- range(ylim.default, x$residuals)
@@ -203,7 +203,7 @@ plot.noise.model <- function(x,
 
   dots <- list(...)
   dots <- .defaults(dots,
-                    xlab = "trend",
+                    xlab = "|trend|",
                     ylab = ylab.default)
 
   dots.means <- .defaults(dots,
