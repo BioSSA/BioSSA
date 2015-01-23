@@ -226,7 +226,7 @@ desweep <- function(emb3, emb2) {
   depth[depth > 1] <- 1
   depth[depth < 0] <- 0
 
-  cbind(x = x, depth = depth, phi = phi) # phi is 2pi-periodic, x is NOT normalized
+  cbind(x = x, depth = depth, phi = phi / (2*pi)) # phi is one-periodic, x is NOT normalized
 }
 
 .unfold3d.sphere <- function(X,
@@ -262,9 +262,9 @@ desweep <- function(emb3, emb2) {
     # FIXME Use proper directions names
   }
 
-  units <- c(psi = R.median, depth = dR.median, phi = R.median)
+  units <- c(psi = 2*pi * R.median, depth = dR.median, phi = 2*pi * R.median)
 
-  res <- cbind(psi = psi, depth = depth, phi = phi) # phi(long) is 2pi-periodic, psi(latt) is not
+  res <- cbind(psi = psi / (2*pi), depth = depth, phi = phi / (2*pi)) # phi(long) is one-periodic, psi(latt) is not
   attr(res, "units") <- units
 
   sizes <- c(R = R.median, D = dR.median)
@@ -329,18 +329,18 @@ interpolate2grid.embryo3d.cylinder <- function(x, ...,
   odepth <- seq(min(uX[, "depth"]) + eps, max(uX[, "depth"]) - eps, length.out = cuts["depth"])
 
   if (circular) {
-    ophi <- seq(0, 2*pi, length.out = cuts["phi"] + 1); ophi <- ophi[-length(ophi)]
+    ophi <- seq(0, 1, length.out = cuts["phi"] + 1); ophi <- ophi[-length(ophi)]
 
     uX.up <- uX.down <- uX
-    uX.up[, "phi"] <- uX[, "phi"] + 2*pi
-    uX.down[, "phi"] <- uX[, "phi"] - 2*pi
+    uX.up[, "phi"] <- uX[, "phi"] + 1
+    uX.down[, "phi"] <- uX[, "phi"] - 1
     uX <- rbind(uX.down, uX, uX.up)
     v <- rep(v, 3)
   } else {
     phi <- uX[, "phi"]
     # FIXME FIXME FIXME fix backward (trilinear) interpolation
     zphi <- atan2(mean(sin(phi)), mean(cos(phi)))
-    uX[, "phi"] <- (phi - zphi + 3*pi) %% (2*pi) - pi + zphi
+    uX[, "phi"] <- (phi - zphi + 1.5) %% 1 - 0.5 + zphi
 
     ophi <- seq(min(uX[, "phi"]) + eps, max(uX[, "phi"]) - eps, length.out = cuts["phi"])
   }
@@ -442,10 +442,10 @@ update.field.embryo3d.sphere <- function(x, newvalues = x$field$f, ...,
 }
 
 approx3d.cycled <- function(x, y, z, f, xout, yout, zout) {
-  z <- c(z - 2*pi, z, z + 2*pi)
+  z <- c(z - 1, z, z + 1)
   f <- rep(f, 3); dim(f) <- sapply(list(x, y, z), length)
 
-  zout <- zout - 2*pi * floor(zout / (2*pi))
+  zout <- zout - floor(zout)
 
   approx3d(x, y, z, f, xout, yout, zout)
 }
