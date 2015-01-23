@@ -184,7 +184,7 @@ field.section.embryo3d <- function(emb3, slice = list(), units = c("rate", "orig
   names(slice.idx) <- NULL
 
   values <- do.call("[", c(list(field$f, drop = TRUE), slice.idx))
-  list(x = emb3$field[[free.coord]] * attr(emb3, "units")[free.coord],
+  list(x = emb3$field[[free.coord]], # * attr(emb3, "units")[free.coord],
        y = values, free.coord = free.coord)
 }
 
@@ -327,7 +327,7 @@ subset.embryo3d <- function(x, subset = list(), tolerance, ..., na.rm = TRUE) {
     prepanel <- prepanel.default.xyplot
   }
 
-  stripe$xvalues <- stripe[[free.coord]] * attr(x, "units")[free.coord]
+  stripe$xvalues <- stripe[[free.coord]] # * attr(x, "units")[free.coord]
   res <- do.call("xyplot", c(list(values ~ xvalues, data = stripe, prepanel = prepanel), dots))
 
   if (ref) {
