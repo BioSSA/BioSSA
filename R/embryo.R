@@ -269,7 +269,49 @@ desweep <- function(emb3, emb2) {
   sizes <- c(R = R.median, D = dR.median)
   attr(res, "original.size") <- sizes
 
+  # Add equilized data
+  R.eq <- R.median + depth * dR.median
+  x <- x * R.eq; y <- y * R.eq; z <- z * R.eq
+  X.eq <- X / R * R.eq
+
+  # Construct surfaces
+
+  eps <- sqrt(.Machine$double.eps)
+  inner.surface <- .construct.surface(X.eq, depth < 0 + eps)
+  outer.surface <- .construct.surface(X.eq, depth > 1 - eps)
+
+  attr(res, "X.rotated") <- X
+  attr(res, "X.eq") <- X.eq
+  attr(res, "inner.surface") <- inner.surface
+  attr(res, "outer.surface") <- outer.surface
+
   invisible(res)
+}
+
+# X must be centetered and rotated
+.construct.surface <- function(Xi, idx) {
+  if (is.logical(idx)) {
+    idx <- rep_len(idx, nrow(Xi))
+    idx <- which(idx)
+  }
+
+  Xi <- Xi[idx,, drop = FALSE]
+  Xi.with.borders <- rbind(Xi, c(0, 0, 0))
+  zeroi <- nrow(Xi.with.borders)
+
+  hull <- convhulln(Xi.with.borders, options = "Pp")
+
+  mask <- apply(hull != zeroi, 1, all)
+
+  hull <- hull[mask,, drop = FALSE]
+
+  indices <- unique(as.vector(hull))
+
+  indices <- idx[indices]
+
+  hull[] <- idx[hull]
+
+  hull
 }
 
 interpolate2grid.embryo3d.cylinder <- function(x, ...,
@@ -529,6 +571,8 @@ unfold.embryo3d.sphere <- function(x, ..., area = "equator") {
   x$depth <- uX[, "depth"]
   attr(x, "units") <- attr(uX, "units")
   attr(x, "original.size") <- attr(uX, "original.size")
+  attr(x, "rotated") <- X
+  attr(x, "unfolded") <- uX
 
   class(x) <- c("embryo3d.sphere.cylinder", "embryo3d.cylinder", "embryo3d")
   x
