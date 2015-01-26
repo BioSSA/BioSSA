@@ -534,8 +534,9 @@ rotate.sphere <- function(X, center = find.center.sphere(X)) {
   U <- qr.Q(qr(M))
   U <- U[, c(2, 3, 1)]
 
-  # if (U[3, 3] < 0)
-  #   U[, 3] <- -U[, 3]
+  Xt <- X %*% U
+  if (sum(Xt[, 3]) < 0)
+    U[, 3] <- -U[, 3]
 
   if (U[1, 1] < 0)
     U[, 1] <- -U[, 1]
