@@ -259,7 +259,6 @@ desweep <- function(emb3, emb2) {
     r <- sqrt(x^2 + y^2)
     psi <- x/r * cur
     phi <- y/r * cur
-    # FIXME Use proper directions names
   }
 
   units <- c(psi = 2*pi * R.median, depth = dR.median, phi = 2*pi * R.median)
