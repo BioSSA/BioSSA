@@ -255,7 +255,7 @@ desweep <- function(emb3, emb2) {
     r <- sqrt(x^2 + y^2)
     psi <- atan2(z, r) # Equidistant projection OR x <- asin(z)
   } else if (identical(area, "pole")) {
-    cur <- acos(-z) # FIXME !!!!!!! Use proper rotation
+    cur <- acos(z)
     r <- sqrt(x^2 + y^2)
     psi <- x/r * cur
     phi <- y/r * cur
@@ -492,8 +492,8 @@ rotate.sphere <- function(X, center = find.center.sphere(X)) {
   U <- qr.Q(qr(M))
   U <- U[, c(2, 3, 1)]
 
-  if (U[3, 3] < 0)
-    U[, 3] <- -U[, 3]
+  # if (U[3, 3] < 0)
+  #   U[, 3] <- -U[, 3]
 
   if (U[1, 1] < 0)
     U[, 1] <- -U[, 1]
