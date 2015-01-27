@@ -282,6 +282,8 @@ desweep <- function(emb3, emb2) {
 
   attr(res, "X.rotated") <- X
   attr(res, "X.eq") <- X.eq
+  attr(res, "R") <- R.median
+  attr(res, "d") <- dR.median
   attr(res, "inner.surface") <- inner.surface
   attr(res, "outer.surface") <- outer.surface
 
@@ -544,7 +546,11 @@ rotate.sphere <- function(X, center = find.center.sphere(X)) {
   if (det(U) < 0)
     U[, 2] <- -U[, 2]
 
-  X %*% U
+  X <- X %*% U
+  attr(X, "center") <- center
+  attr(X, "U") <- U
+
+  X
 }
 
 unfold.embryo3d.cylynder <- function(x, ...) {
