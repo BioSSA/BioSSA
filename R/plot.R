@@ -134,6 +134,7 @@ field.section2d.embryo3d <- function(emb3, slice = list(), units = c("percent", 
                                               slice,
                                               tolerance = 0.1,
                                               units = c("percent", "original"),
+                                              plot.type = "s",
                                               ...,
                                               ref = FALSE, add = FALSE,
                                               grid = c("x", "y", "z"),
@@ -149,7 +150,7 @@ field.section2d.embryo3d <- function(emb3, slice = list(), units = c("percent", 
 
   # Provide convenient defaults
   dots <- .defaults(dots,
-                    type = "s",
+                    type = plot.type,
                     xlab = free.coords[1],
                     ylab = free.coords[2],
                     zlab = "values",
@@ -333,12 +334,12 @@ plot.BioSSA2d <- function(x, type = c("ssa-values", "ssa-vectors", "ssa-series",
   grid3d(c("x", "y", "z"))
 }
 
-.plot3d.embryo2d.nuclei <- function(x, ..., add = FALSE) {
+.plot3d.embryo2d.nuclei <- function(x, plot.type = "s", ..., add = FALSE) {
   dots <- list(...)
 
   # Provide convenient defaults
   dots <- .defaults(dots,
-                    type = "s",
+                    type = plot.type,
                     xlab = "x",
                     ylab = "y",
                     zlab = "z",
@@ -441,6 +442,7 @@ nuclei.stripe <- function(emb2, at, units = c("percent", "original"), tolerance 
                                             coord = c("y", "x"),
                                             tolerance = 0.1,
                                             units = c("percent", "original"),
+                                            plot.type = "p",
                                             ...,
                                             ref = FALSE) {
   dots <- list(...)
@@ -451,7 +453,7 @@ nuclei.stripe <- function(emb2, at, units = c("percent", "original"), tolerance 
   anticoord <- if (coord == "y") "x" else "y"
 
   dots <- .defaults(dots,
-                    type = "p",
+                    type = plot.type,
                     col = "green",
                     pch = 18,
                     ylab = "Expression",
