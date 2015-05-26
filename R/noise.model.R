@@ -22,6 +22,17 @@ noise.model.default <- function(x, trend,
   residuals.original <- residuals
   trend.original <- trend
 
+  if (is.character(offset)) {
+    offset <- match.arg(offset, c("bottom-trend"))
+
+    if (identical(offset, "bottom-trend")) {
+      eps <- sqrt(.Machine$double.eps)
+      offset <- -(min(trend) - eps)
+    } else {
+      stop("Unknown `offset' correction type")
+    }
+  }
+
   reg.level <- min(reg.level, 1 - reg.level)
   tb <- quantile(trend, probs = c(reg.level / 2, 1 - reg.level / 2))
   rb <- quantile(residuals, probs = c(reg.level / 2, 1 - reg.level / 2))
