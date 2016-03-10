@@ -57,6 +57,10 @@ BioSSA2d.embryo2d <- function(x,
   emb2 <- interpolate(emb2,
                       step = step)
 
+  ### Percent scale
+  emb2$field$xperc <- seq(0, 100, length.out = length(emb$field$x))
+  emb2$field$yperc <- seq(100, 0, length.out = length(emb$field$y))
+
   ### Cutoff
   xmask <- (emb2$field$x >= xlim[1]) & (emb2$field$x <= xlim[2])
   ymask <- (emb2$field$y >= ylim[1]) & (emb2$field$y <= ylim[2])
