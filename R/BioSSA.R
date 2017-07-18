@@ -210,7 +210,7 @@ wcor.BioSSA2d <- function(x, ...) {
 read.emb.data <- function(file) {
   lines <- readLines(file)
 
-  pattern <- "channel \\d - ([a-z]*)"
+  pattern <- "channel \\d - ([A-Za-z]*)"
   re <- gregexpr(pattern, lines[5])
   matches <- regmatches(lines[5], re)[[1]]
   extract <- function(m) {
