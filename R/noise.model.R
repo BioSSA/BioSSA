@@ -101,7 +101,7 @@ noise.model.default <- function(x, trend,
     }
   }
 
-  sigma <- sqrt(mean((exp(residuals.means) / exp(trend.means)^alpha_true)^2, na.rm = TRUE))
+  sigma <- sqrt(mean((exp(residuals.means) / exp(trend.means)^alpha)^2, na.rm = TRUE))
   residuals.means.fitted <- sigma * exp(trend.means * alpha)
   rresiduals <- residuals.original / (trend.original + offset)^alpha
 
