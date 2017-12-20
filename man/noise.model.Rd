@@ -52,7 +52,7 @@
   \item{averaging.type}{character, averaging method for power estimation and model visualization}
   \item{breaks}{the number of intervals to trend values breaking. Used for 'equal-break'
     and 'quantile-break' averaging types}
-  \item{window}{lenght of sliding window. Used for 'sliding-window' averaging type}
+  \item{window}{length of sliding window. Used for 'sliding-window' averaging type}
   \item{FUN}{averaging function for logarithms of residuals absolute values
     (like \code{\link[base:mean]{mean}} or \code{\link[stats:median]{median}})
     should take numeric vector and return one numeric value. Used for all averaging types except 'none'}
@@ -64,11 +64,11 @@
   \item{draw.residuals}{logical, whether plot residuals}
   \item{draw.means.fitted}{logical, whether plot regression line drawn by averaged residuals}
   \item{print.alpha}{logical, whether output multiplicity power estimation}
-  \item{ref}{logical, whether plot zelo level line}
+  \item{ref}{logical, whether plot zero level line}
   \item{symmetric}{logical, whether y-scale should be symmetric by default}
   \item{dots.residuals}{list of additional arguments passed to \code{\link[lattice:xyplot]{xyplot}} function
     used for plotting of the residuals}
-  \item{dots.means.fitted}{same as previous, but for regression line plot, НЕ ИСПОЛЬЗУЕТСЯ, кандидат на вылет}
+  \item{dots.means.fitted}{same as previous, but for regression line plot (not used, supposed to be excluded)}
   \item{digits}{integer, how many significant digits are to be used for numbers formatting}
 }
 
@@ -113,7 +113,7 @@
 
   Value of \eqn{\alpha}{alpha} is estimated as follows:
   logarithms of absolute values of residuals and ofsetted trend are considered,
-  then they both ordered by the trend values and averaging prcedure performed.
+  then they both ordered by the trend values and averaging procedure performed.
   There are following averaging methods:
   'none' means nothing averaging,
   'sliding-window' means sliding window averaging (default approach)
@@ -123,7 +123,7 @@
   'equal-break' means equal size buckets), correspondingly residuals splitting and averaging
   logarithmed residuals and trend values in each bucket.
 
-  Then linear regression on averaged logarithms is provided. Slope is \eqn{\alpha}{alpha} esimation
+  Then linear regression on averaged logarithms is provided. Slope is \eqn{\alpha}{alpha} estimation
   and intercept is estimation of logarithm of the standard deviation of relative noise, i.e.
   \eqn{\sigma = e^{Intercept}}{sigma = exp(Intercept)}.
 }
