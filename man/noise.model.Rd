@@ -2,6 +2,7 @@
 \alias{noise.model}
 \alias{noise.model.default}
 \alias{noise.model.BioSSA2d}
+\alias{noise.model.BioSSA3d}
 \alias{plot.noise.model}
 \alias{print.noise.model}
 \alias{summary.noise.model}
@@ -40,7 +41,7 @@
 }
 
 \arguments{
-  \item{x, object}{the input object. This might be `BioSSA2d' object for \emph{BioSSA2d} method,
+  \item{x, object}{the input object. This might be `BioSSA2d'/`BioSSA3d' object for \emph{BioSSA2d}/\emph{BioSSA3d} method,
     or just a numeric vector of residuals for \emph{default} implementation}
   \item{trend}{numeric vector, trend for noise model estimation; this parameter can be used only
     for \emph{default} method}
@@ -58,7 +59,7 @@
     should take numeric vector and return one numeric value. Used for all averaging types except 'none'}
   \item{FUN.trend}{averaging function for logarithms of trend values, like previous}
   \item{\dots}{additional arguments, passed to inner function calls}
-  \item{groups}{numeric vector, component indices in BioSSA2d decomposition for trend extraction}
+  \item{groups}{numeric vector, component indices in BioSSA decomposition for trend extraction}
   \item{absolute}{logical, whether plot absolute values of residuals instead of residuals itself}
   \item{relative}{logical, whether plot relative residuals instead of absolute ones}
   \item{draw.residuals}{logical, whether plot residuals}
@@ -73,7 +74,7 @@
 }
 
 \details{
-  \code{noise.model} applied to `BioSSA2d' object calculates the residual and trend
+  \code{noise.model} applied to `BioSSA2d'/`BioSSA3d' object calculates the residual and trend
   and then call the \emph{default} method passing the further arguments.
 
   \code{plot} method plots residuals and smoothed residuals in dependence on the trend.
@@ -176,4 +177,3 @@ nm <- noise.model(bs, 1:3, model = nm.none$alpha, averaging.type = "sliding")
 
 plot(nm)
 }
-
