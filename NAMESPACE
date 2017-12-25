@@ -10,6 +10,10 @@ import(stringr)
 import(oce)
 import(alphashape3d)
 
+import(graphics)
+import(grDevices)
+import(stats)
+import(utils)
 
 export(BioSSA,
        BioSSA2d3d,
