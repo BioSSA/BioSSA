@@ -1,16 +1,16 @@
 # TODO Make one intepolate function
 
 load.python <- function() {
-  stopifnot(require(rPython))
+  stopifnot(requireNamespace("rPython", quietly = TRUE))
 
   py.file <- system.file("extdata/python", "interp.py", package = "BioSSA")
-  python.load(py.file)
+  rPython::python.load(py.file)
 
   return(TRUE)
 }
 
 linear.interpolate.old <- function(x, points, values, scale = FALSE) {
-  stopifnot(load.python())
+  stopifnot(requireNamespace("rPython", quietly = TRUE))
 
   points <- as.matrix(points)
   points <- base::scale(points, center = FALSE, scale = scale)
@@ -35,7 +35,7 @@ linear.interpolate.old <- function(x, points, values, scale = FALSE) {
   storage.mode(x) <- storage.mode(points) <- storage.mode(values) <- "double"
   storage.mode(d) <- "integer"
 
-  res <- python.call("interpolaten", points, values, x, d)
+  res <- rPython::python.call("interpolaten", points, values, x, d)
   res <- lapply(res, function(x) if (is.null(x)) NA_real_ else as.double(x))
   res <- unlist(res)
   res <- as.double(res)
@@ -46,7 +46,8 @@ linear.interpolate.old <- function(x, points, values, scale = FALSE) {
 }
 
 linear.interpolate <- function(...) {
-  cgal.result <- LinearInterpolator:::linear.interpolate(...)
+  stopifnot(requireNamespace("LinearInterpolator", quietly = TRUE))
+  cgal.result <- LinearInterpolator::linear.interpolate(...)
   print("Interpolated")
   # python.result <- linear.interpolate.old(...)
   #
