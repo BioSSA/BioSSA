@@ -109,9 +109,12 @@ noise.model.default <- function(x, trend,
 
   rresiduals <- residuals.original / (trend.original + offset)^alpha
 
+  sd2 <- mean(rresiduals^2, na.rm = TRUE)
+  if (sd2 < 0) sd2 <- 0
+
   res <- list(alpha = alpha,
               sigma = sigma,
-              sd = sqrt(mean(rresiduals^2)),
+              sd = sqrt(sd2),
               residuals = residuals.original,
               trend = trend.original,
               residuals.means = exp(residuals.means),
