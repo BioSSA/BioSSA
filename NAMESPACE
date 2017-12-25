@@ -1,3 +1,8 @@
+import(graphics)
+import(grDevices)
+import(stats)
+import(utils)
+
 import(rgl)
 import(akima)
 import(pracma)
@@ -10,11 +15,6 @@ import(stringr)
 import(oce)
 import(alphashape3d)
 
-import(graphics)
-import(grDevices)
-import(stats)
-import(utils)
-
 export(BioSSA,
        BioSSA2d3d,
        BioSSA3d,
@@ -25,7 +25,8 @@ export(BioSSA,
        read.emb.data,
        noise.model,
        read.pce,
-       extract.gene.pce
+       extract.gene.pce,
+       decompose
        )
 
 S3method("BioSSA", "embryo2d")

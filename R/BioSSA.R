@@ -103,6 +103,10 @@ BioSSA2d3d.embryo3d <- function(x, ..., sweep = sweep.function) {
 BioSSA.embryo2d <- BioSSA2d.embryo2d
 BioSSA.embryo3d <- BioSSA2d3d.embryo3d
 
+# There is decompose() call in stats package, we need to take control over it
+decompose <- function(x, ...) UseMethod("decompose");
+decompose.default <- function(x, ...) stats::decompose(x, ...);
+
 decompose.BioSSA2d <- function(x, ...) {
   decompose(x$ssa, ...)
 
