@@ -85,14 +85,22 @@ noise.model.default <- function(x, trend,
     stop("Unknown `averaging.type'")
   }
 
+  if (identical(averaging.type, "none") || identical(FUN, mean)) {
+    avg.log.abs.norm <- 0.5*(digamma(1) - log(2))  # mean, N[Integrate[(Sqrt[2/Pi] Log[x])/E^(x^2/2), {x, 0, Infinity}], 100] in Wolfram
+  } else if (identical(FUN, median)) {  # default
+    avg.log.abs.norm <- log(qnorm(0.75))  # median
+  } else {
+    N <- 100 * length(residuals.means)
+    avg.log.abs.norm <- FUN(log(abs(rnorm(N))))  # simultaion
+  }
+
   if (is.character(model))
     model <- match.arg(model, c("estimate", "additive", "multiplicative", "poisson"))
   if (identical(model, "estimate")) {
     R <- lm(residuals.means ~ trend.means)
 
     alpha <- as.numeric(coef(R)[2])
-    sigma <- as.numeric(exp(coef(R)[1]))
-    residuals.means.fitted <- exp(fitted(R))
+    sigma <- as.numeric(exp(coef(R)[1] - avg.log.abs.norm))
   } else {
     if (is.character(model)) {
       alpha <- switch(model,
@@ -103,10 +111,10 @@ noise.model.default <- function(x, trend,
       alpha <- model
     }
 
-    sigma <- exp(mean(residuals.means - alpha * trend.means))
-    residuals.means.fitted <- sigma * exp(trend.means * alpha)
+    sigma <- exp(mean(residuals.means - alpha * trend.means) - avg.log.abs.norm)
   }
 
+  residuals.means.fitted <- sigma * exp(trend.means * alpha)
   rresiduals <- residuals.original / (trend.original + offset)^alpha
 
   sd2 <- mean(rresiduals^2, na.rm = TRUE)
