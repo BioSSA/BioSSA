@@ -89,7 +89,10 @@ noise.model.default <- function(x, trend,
     model <- match.arg(model, c("estimate", "additive", "multiplicative", "poisson"))
   if (identical(model, "estimate")) {
     R <- lm(residuals.means ~ trend.means)
+
     alpha <- as.numeric(coef(R)[2])
+    sigma <- as.numeric(exp(coef(R)[1]))
+    residuals.means.fitted <- exp(fitted(R))
   } else {
     if (is.character(model)) {
       alpha <- switch(model,
@@ -99,10 +102,11 @@ noise.model.default <- function(x, trend,
     } else {
       alpha <- model
     }
+
+    sigma <- exp(mean(residuals.means - alpha * trend.means))
+    residuals.means.fitted <- sigma * exp(trend.means * alpha)
   }
 
-  sigma <- sqrt(mean((exp(residuals.means) / exp(trend.means)^alpha)^2, na.rm = TRUE))
-  residuals.means.fitted <- sigma * exp(trend.means * alpha)
   rresiduals <- residuals.original / (trend.original + offset)^alpha
 
   res <- list(alpha = alpha,
