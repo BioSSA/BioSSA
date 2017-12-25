@@ -11,8 +11,15 @@ noise.model.default <- function(x, trend,
                                 breaks = 2, window = 51,
                                 FUN = median,
                                 FUN.trend = FUN,
+                                na.rm = TRUE,
                                 ...) {
   residuals <- x
+
+  if (na.rm) {
+    mask <- !is.na(residuals)
+    residuals <- residuals[mask]
+    trend <- trend[mask]
+  }
 
   stopifnot(all(is.finite(residuals)))
   stopifnot(all(is.finite(trend)))

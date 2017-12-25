@@ -22,6 +22,7 @@
         breaks = 2, window = 51,
         FUN = median,
         FUN.trend = FUN,
+        na.rm = TRUE,
         \dots)
 \method{noise.model}{BioSSA2d}(x, groups, \dots)
 \method{plot}{noise.model}(x,
@@ -58,6 +59,7 @@
     (like \code{\link[base:mean]{mean}} or \code{\link[stats:median]{median}})
     should take numeric vector and return one numeric value. Used for all averaging types except 'none'}
   \item{FUN.trend}{averaging function for logarithms of trend values, like previous}
+  \item{na.rm}{a logical value indicating whether 'NA' values should be stripped before the computation proceeds}
   \item{\dots}{additional arguments, passed to inner function calls}
   \item{groups}{numeric vector, component indices in BioSSA decomposition for trend extraction}
   \item{absolute}{logical, whether plot absolute values of residuals instead of residuals itself}
