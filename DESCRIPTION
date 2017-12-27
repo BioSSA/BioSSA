@@ -3,8 +3,8 @@ Type: Package
 Title: A collection of methods for singular spectrum analysis of drosophila embryo (2d and 3d) gene expression
 Version: 0.2
 Date: 2017-12-08
-Depends: R (>= 3.0), Rssa (>= 0.10-1), lattice, latticeExtra, rgl
-Imports: stringr, akima, pracma, geometry, tripack, oce, alphashape3d
+Depends: R (>= 3.0), Rssa (>= 0.10-1), lattice, latticeExtra, rgl, stringr, akima, pracma, geometry, tripack, oce, alphashape3d
+Imports: methods
 Suggests: rPython, testthat, LinearInterpolator
 Author: Alex Shlemov, Nina Golyandina
 Maintainer: Alex Shlemov <shlemovalex@gmail.com>
