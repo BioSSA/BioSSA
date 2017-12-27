@@ -27,7 +27,14 @@ export(BioSSA,
        noise.model,
        read.pce,
        extract.gene.pce,
-       decompose
+       decompose,
+       rgl.kill.text,
+       save.rgl.plot,
+       plot.em,
+       plot.bb,
+       .plot.embryo3d.nuclei.flattened,
+       field2emb,
+       make.gl
        )
 
 S3method("BioSSA", "embryo2d")
