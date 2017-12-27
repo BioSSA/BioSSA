@@ -6,9 +6,6 @@ rgl.kill.text <- function() {
 
 
 save.rgl.plot <- function(filename, make.png = TRUE, make.vec = TRUE, fmts = c("eps"), do.pause = TRUE) {
-  figs <- readLines("fig_list.txt")
-  if (!filename %in% figs && !grepl("bbox", filename)) return(0)
-
   print(sprintf("3d Plotting %s .......", filename))
 
   # complicated <- filename %in% readLines("complicated.txt")
