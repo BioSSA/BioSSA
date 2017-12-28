@@ -63,7 +63,7 @@ ball.size <- 1
 ball.size.sp <- 1.25
 ball.size.ssp <- 1.25
 
-lit.sp <- TRUE #FALSE
+lit.sp <- TRUE  # Use 'FALSE' to disable light effects
 
 
 make.gl("scheme/original.png", plot(em, type = "nuclei", size = ball.size, col = col3d,
