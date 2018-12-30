@@ -58,8 +58,8 @@ BioSSA2d.embryo2d <- function(x,
                       step = step)
 
   ### Percent scale
-  emb2$field$xperc <- seq(0, 100, length.out = length(emb2$field$x))
-  emb2$field$yperc <- seq(100, 0, length.out = length(emb2$field$y))
+  emb2$field$xperc <- (emb2$field$x - x0perc) / x1perc
+  emb2$field$yperc <- (emb2$field$y - y0perc) / y1perc
 
   ### Cutoff
   xmask <- (emb2$field$x >= xlim[1]) & (emb2$field$x <= xlim[2])
