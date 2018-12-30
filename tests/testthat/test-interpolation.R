@@ -31,6 +31,7 @@ is.lay.in.convex.hull <- function(x, points, tessellation = delaunayn(points)) {
 }
 
 test_that("linear.interpolate() works for 2d linear case", {
+  set.seed(1)
   x <- c(rnorm(100), 100, 100, -100, -100)
   y <- c(rnorm(100), 100, -100, 100, -100)
 
@@ -51,6 +52,7 @@ test_that("linear.interpolate() works for 2d linear case", {
 
 
 test_that("linear.interpolate() works for 2d linear case with NAs", {
+  set.seed(1)
   x <- c(rnorm(100))
   y <- c(rnorm(100))
 
@@ -71,6 +73,7 @@ test_that("linear.interpolate() works for 2d linear case with NAs", {
 })
 
 test_that("linear.interpolate() works for n-d linear case with NAs", {
+  set.seed(1)
   dim <- 3
   n <- 100
   x <- matrix(rnorm(dim * n), n, dim)
