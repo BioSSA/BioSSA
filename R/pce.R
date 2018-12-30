@@ -2,7 +2,7 @@ unquote <- function(x) {
   gsub("\"(.*?)\"", "\\1", x)
 }
 
-parse.matlab.matrix <- function(s, numeric = FALSE) {
+parse.matlab.matrix <- function(s, matrix = FALSE, coercion = identity) {
   s <- gsub("\\[(.*?)\\]", "\\1", s, perl = TRUE)
   rows <- strsplit(s, "\\s*;\\s*", perl = TRUE)[[1]]
   mx <- strsplit(rows, "\\s*,\\s*", perl = TRUE)
@@ -11,8 +11,8 @@ parse.matlab.matrix <- function(s, numeric = FALSE) {
     mx[[row]] <- unquote(mx[[row]])
   }
 
-  if (numeric) {
-    mx <- do.call(rbind, lapply(mx, as.numeric))
+  if (matrix) {
+    mx <- do.call(rbind, lapply(mx, coercion))
   }
 
   mx
@@ -49,6 +49,68 @@ read.pccsv <- function(file, col.names) {
 
   names(df) <- col.names
   df
+}
+
+read.vpc <- function(file) {
+  # Get file content
+  lines <- readLines(file)
+  # Trim lines
+  lines <- str_trim(lines)
+  # Extract header
+  lines <- lines[grep("^#", lines, perl = TRUE)]
+  # Remove comments from header
+  lines <- lines[grep("^##", lines, perl = TRUE, invert = TRUE)]
+  # Remove leading sharpes
+  lines <- sub("\\s*#+\\s*", "", lines, perl = TRUE)
+
+  # Split lines by equality sign
+  splitted.lines <- strsplit(lines, "\\s*=\\s*", perl = TRUE)
+
+  # Extract and set names
+  prop.names <- sapply(splitted.lines, function(el) el[1])
+  props <- lapply(splitted.lines, function(el) paste0(el[-1], collapse = ""))
+  prop.names <- gsub("_", ".", prop.names, fixed = TRUE)
+  names(props) <- prop.names
+
+  # Create empty list for result
+  info <- list()
+
+  info$cohort.names <- parse.matlab.matrix(props$cohort.names)[[1]]
+  info$cohort.times <- as.integer(parse.matlab.matrix(props$cohort.times)[[1]])
+  info$srclist <- parse.matlab.matrix(props$srclist)[[1]]
+  info$embryospergene <- parse.matlab.matrix(props$embryospergene, coercion = as.integer, matrix = TRUE)
+  info$column.info <- parse.matlab.matrix(props$column.info)
+  info$col.names <- parse.matlab.matrix(props$column)[[1]]
+  info$nuclear.count <- as.integer(unquote(props$nuclear.count))
+
+  info$genes <- sapply(info$column.info, function(el) el[1])
+
+  vpc <- read.pccsv(file, info$col.names)
+  info$col.names <- NULL
+
+  attr(vpc, "info") <- info
+
+  invisible(vpc)
+}
+
+extract.gene.vpc <- function(vpc, gene, cohort) {
+  info <- attr(vpc, "info")
+  gene <- match.arg(gene, info$genes)
+
+
+  col.names <- paste(c("x", "y", "z", gene), cohort, sep = "__")
+  if (!all(col.names %in% names(vpc))) {
+    stop(sprintf("cohort #%d is not presented for gene `%s`", cohort, gene))
+  }
+  emb <-  vpc[, col.names]
+
+  names(emb) <- c("x3d", "y3d", "z3d", "values")
+
+  attr(emb, "info") <- attr(vpc, "info")
+
+  emb <- as.list(emb)
+  class(emb) <- "embryo3d"
+  invisible(emb)
 }
 
 read.pce <- function(file) {
@@ -149,7 +211,7 @@ extract.gene.pce <- function(pce, gene,
   intensity.col <- gsub(" ", ".", intensity.col, fixed = TRUE)
 
   pce <- pce[, c("x", "y", "z", intensity.col)]
-  rotate2 <- parse.matlab.matrix(info$header$rotate2, numeric = TRUE)
+  rotate2 <- parse.matlab.matrix(info$header$rotate2, coercion = as.numeric, matrix = TRUE)
   XYZ <- as.matrix(pce[, c("x", "y", "z")])
   XYZ <- XYZ %*% t(rotate2[1:3, 1:3])
   pce$x <- XYZ[, 1]
@@ -209,4 +271,8 @@ read.pce.gene.old <- function(file, gene) {
 
 read.pce.gene <- function(file, gene, ...) {
   extract.gene.pce(read.pce(file), gene = gene, ...)
+}
+
+read.vpc.gene <- function(file, gene, ...) {
+  extract.gene.vpc(read.vpc(file), gene = gene, ...)
 }
