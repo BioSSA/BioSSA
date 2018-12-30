@@ -30,6 +30,9 @@ is.lay.in.convex.hull <- function(x, points, tessellation = delaunayn(points)) {
   !is.na(idx)
 }
 
+# TODO Investigate why tests fail with lesser tolerance
+tolerance <- 1e-3
+
 test_that("linear.interpolate() works for 2d linear case", {
   set.seed(1)
   x <- c(rnorm(100), 100, 100, -100, -100)
@@ -46,7 +49,7 @@ test_that("linear.interpolate() works for 2d linear case", {
 
   li <- linear.interpolate(cbind(xx, yy), cbind(x, y), z)
 
-  expect_equal(li, zz, tolerance = 1e-3)
+  expect_equal(li, zz, tolerance = tolerance)
 })
 
 
@@ -69,7 +72,7 @@ test_that("linear.interpolate() works for 2d linear case with NAs", {
 
   zz[!is.lay.in.convex.hull(cbind(xx, yy), cbind(x, y), delaunayn(cbind(x, y)))] <- NA
 
-  expect_equal(li, zz, tolerance = 1e-3)
+  expect_equal(li, zz, tolerance = tolerance)
 })
 
 test_that("linear.interpolate() works for n-d linear case with NAs", {
@@ -93,5 +96,5 @@ test_that("linear.interpolate() works for n-d linear case with NAs", {
 
   zz[!is.lay.in.convex.hull(xx, x, delaunayn(x))] <- NA
 
-  expect_equal(li, zz, tolerance = 1e-3)
+  expect_equal(li, zz, tolerance = tolerance)
 })
